@@ -1,0 +1,505 @@
+comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operations with proper error handling using TryCatch.
+↓init_test [steps.SimpleStep-1781589696641]: 
+  comment: Initialize test results tracking and generate unique names
+  expression: |
+    'var now = new Date();
+    var ts = now.getFullYear() + '''' + (now.getMonth()+1) + '''' + now.getDate() + '''' + now.getHours() + '''' + now.getMinutes() + '''' + now.getSeconds();
+    var bucketPrefix = String(testBucketName || ''convertigo-test-bucket-'');
+    var objectPrefix = String(testObjectKey || ''test-file-'');
+    var configuredRegion = String(region || '''').trim();
+    if (!configuredRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
+        region = ''us-east-1'';
+    }
+    if (!String(testContent || '''')) {
+        testContent = ''convertigo non regression content'';
+    }
+    function xmlEscape(value) {
+        return String(value || '''').replace(/&/g, ''&amp;'').replace(/</g, ''&lt;'').replace(/>/g, ''&gt;'');
+    }
+    testTimestamp = ts;
+    testResults = {
+        listBuckets: ''NOT_RUN'',
+        createBucket: ''NOT_RUN'',
+        putObject: ''NOT_RUN'',
+        listObjects: ''NOT_RUN'',
+        getObject: ''NOT_RUN'',
+        deleteObject: ''NOT_RUN'',
+        deleteBucket: ''NOT_RUN''
+    };
+    testBucketName = bucketPrefix + ts;
+    testObjectKey = objectPrefix + ts + ''.txt'';
+    bucketName = testBucketName;
+    objectKey = testObjectKey;
+    var uploadXml = ''<s3TestContent>'' + xmlEscape(testContent) + ''</s3TestContent>'';
+    var uploadFile = Packages.java.io.File.createTempFile(''lib_s3_regression_'', ''.xml'');
+    uploadFile.deleteOnExit();
+    var uploadBytes = new java.lang.String(uploadXml).getBytes(''UTF-8'');
+    var outputStream = new Packages.java.io.FileOutputStream(uploadFile);
+    try {
+        outputStream.write(uploadBytes);
+    } finally {
+        outputStream.close();
+    }
+    fileContent = String(uploadFile.getAbsolutePath());
+    contentType = ''application/xml'';
+    testsPassed = 0;
+    testsFailed = 0;
+    overallSuccess = true;
+    function recordS3Result(op, c8oDetails, s3ErrorCode, rawText, expectedMarker, expectedRawText, acceptEmptyXmlResponse) {
+        var details = String(c8oDetails || '''');
+        var s3Code = String(s3ErrorCode || '''');
+        var raw = String(rawText || '''');
+        var marker = expectedMarker == null ? null : String(expectedMarker || '''');
+        var expectedRaw = expectedRawText == null ? null : String(expectedRawText || '''');
+        var lowerRaw = raw.toLowerCase();
+        var emptyXmlParse = acceptEmptyXmlResponse && (details.indexOf(''Unable to parse the XML document'') >= 0 || details.indexOf(''Premature end of file'') >= 0 || details.indexOf(''unexpected exception'') >= 0 || details.indexOf(''bytes'') >= 0);
+        if (emptyXmlParse) {
+            testResults[op] = ''PASS'';
+            testsPassed = testsPassed + 1;
+        } else if (details) {
+            testResults[op] = ''FAIL: '' + details;
+            testsFailed = testsFailed + 1;
+            overallSuccess = false;
+        } else if (s3Code) {
+            testResults[op] = ''FAIL: S3 '' + s3Code;
+            testsFailed = testsFailed + 1;
+            overallSuccess = false;
+        } else if (lowerRaw.indexOf(''<!doctype html'') >= 0 || lowerRaw.indexOf(''<html'') >= 0) {
+            testResults[op] = ''FAIL: unexpected HTML response'';
+            testsFailed = testsFailed + 1;
+            overallSuccess = false;
+        } else if (marker != null && !marker) {
+            testResults[op] = ''FAIL: expected S3 result marker not found'';
+            testsFailed = testsFailed + 1;
+            overallSuccess = false;
+        } else if (expectedRaw != null && raw != expectedRaw) {
+            testResults[op] = ''FAIL: unexpected response content'';
+            testsFailed = testsFailed + 1;
+            overallSuccess = false;
+        } else {
+            testResults[op] = ''PASS'';
+            testsPassed = testsPassed + 1;
+        }
+    }'
+↓run_listBuckets [steps.SequenceStep-1781589766968]: 
+  comment: Executes listBuckets test by calling lib_s3.listBuckets sequence
+  output: true
+  sourceSequence: lib_s3.listBuckets
+  ↓accessKey [variables.StepVariable-1781589863921]: 
+  ↓secretKey [variables.StepVariable-1781589863923]: 
+  ↓region [variables.StepVariable-1781589863925]: 
+  ↓sessionToken [variables.StepVariable-1781589863927]: 
+↓listBuckets_c8oDetails [steps.SimpleSourceStep-1781611200001]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766968
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: listBucketsC8oDetails
+↓listBuckets_s3ErrorCode [steps.SimpleSourceStep-1781611200002]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766968
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: listBucketsS3ErrorCode
+↓listBuckets_rawText [steps.SimpleSourceStep-1781611200003]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766968
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: listBucketsRawText
+↓listBuckets_ownerId [steps.SimpleSourceStep-1781611200026]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766968
+        - java.lang.String: 
+          - ↑value: ./document/ListAllMyBucketsResult/Owner/ID/text()
+  variableName: listBucketsOwnerId
+↓check_listBuckets [steps.SimpleStep-1781589766971]: 
+  comment: Check listBuckets result and record PASS/FAIL
+  expression: recordS3Result('listBuckets', listBucketsC8oDetails, listBucketsS3ErrorCode, listBucketsRawText, listBucketsOwnerId, null);
+↓run_createBucket [steps.SequenceStep-1781589766973]: 
+  comment: Executes createBucket test by calling lib_s3.createBucket sequence
+  output: true
+  sourceSequence: lib_s3.createBucket
+  ↓bucketName [variables.StepVariable-1781589821555]: 
+  ↓accessKey [variables.StepVariable-1781589821557]: 
+  ↓secretKey [variables.StepVariable-1781589821559]: 
+  ↓region [variables.StepVariable-1781589821561]: 
+  ↓sessionToken [variables.StepVariable-1781589821563]: 
+↓createBucket_c8oDetails [steps.SimpleSourceStep-1781611200004]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766973
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: createBucketC8oDetails
+↓createBucket_s3ErrorCode [steps.SimpleSourceStep-1781611200005]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766973
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: createBucketS3ErrorCode
+↓createBucket_rawText [steps.SimpleSourceStep-1781611200006]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766973
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: createBucketRawText
+↓createBucket_createdBucket [steps.SimpleSourceStep-1781679734248]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766973
+        - java.lang.String: 
+          - ↑value: ./document/CreateBucketResult/Bucket/text()
+  variableName: createBucketCreatedBucket
+↓check_createBucket [steps.SimpleStep-1781589766975]: 
+  comment: Check createBucket result and record PASS/FAIL
+  expression: 'recordS3Result(''createBucket'', createBucketC8oDetails, createBucketS3ErrorCode, createBucketRawText, createBucketCreatedBucket == testBucketName ? createBucketCreatedBucket : '''', null, false);'
+↓run_putObject [steps.SequenceStep-1781589766977]: 
+  comment: Executes putObject test by calling lib_s3.putObject sequence
+  output: true
+  sourceSequence: lib_s3.putObject
+  ↓bucketName [variables.StepVariable-1781589830301]: 
+  ↓objectKey [variables.StepVariable-1781589830303]: 
+  ↓fileContent [variables.StepVariable-1781589830305]: 
+  ↓contentType [variables.StepVariable-1781589830307]: 
+  ↓accessKey [variables.StepVariable-1781589830309]: 
+  ↓secretKey [variables.StepVariable-1781589830311]: 
+  ↓region [variables.StepVariable-1781589830313]: 
+  ↓sessionToken [variables.StepVariable-1781589830315]: 
+↓putObject_c8oDetails [steps.SimpleSourceStep-1781611200007]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766977
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: putObjectC8oDetails
+↓putObject_s3ErrorCode [steps.SimpleSourceStep-1781611200008]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766977
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: putObjectS3ErrorCode
+↓putObject_rawText [steps.SimpleSourceStep-1781611200009]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766977
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: putObjectRawText
+↓putObject_uploadedKey [steps.SimpleSourceStep-1781680864889]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766977
+        - java.lang.String: 
+          - ↑value: ./document/PutObjectResult/Key/text()
+  variableName: putObjectUploadedKey
+↓check_putObject [steps.SimpleStep-1781589766979]: 
+  comment: Check putObject result and record PASS/FAIL
+  expression: 'recordS3Result(''putObject'', putObjectC8oDetails, putObjectS3ErrorCode, putObjectRawText, putObjectUploadedKey == testObjectKey ? putObjectUploadedKey : '''', null, false);'
+↓run_listObjects [steps.SequenceStep-1781589766981]: 
+  comment: Executes listObjects test by calling lib_s3.listObjects sequence
+  output: true
+  sourceSequence: lib_s3.listObjects
+  ↓bucketName [variables.StepVariable-1781589836883]: 
+  ↓accessKey [variables.StepVariable-1781589836885]: 
+  ↓secretKey [variables.StepVariable-1781589836887]: 
+  ↓region [variables.StepVariable-1781589836889]: 
+  ↓sessionToken [variables.StepVariable-1781589836891]: 
+↓listObjects_c8oDetails [steps.SimpleSourceStep-1781611200010]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766981
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: listObjectsC8oDetails
+↓listObjects_s3ErrorCode [steps.SimpleSourceStep-1781611200011]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766981
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: listObjectsS3ErrorCode
+↓listObjects_rawText [steps.SimpleSourceStep-1781611200012]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766981
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: listObjectsRawText
+↓listObjects_firstKey [steps.SimpleSourceStep-1781611200027]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766981
+        - java.lang.String: 
+          - ↑value: ./document/ListBucketResult/Contents/Key/text()
+  variableName: listObjectsFirstKey
+↓check_listObjects [steps.SimpleStep-1781589766983]: 
+  comment: Check listObjects result and record PASS/FAIL
+  expression: 'recordS3Result(''listObjects'', listObjectsC8oDetails, listObjectsS3ErrorCode, listObjectsRawText, listObjectsFirstKey == testObjectKey ? listObjectsFirstKey : '''', null);'
+↓run_getObject [steps.SequenceStep-1781589766985]: 
+  comment: Executes getObject test by calling lib_s3.getObject sequence
+  output: true
+  sourceSequence: lib_s3.getObject
+  ↓bucketName [variables.StepVariable-1781589843538]: 
+  ↓objectKey [variables.StepVariable-1781589843540]: 
+  ↓accessKey [variables.StepVariable-1781589843542]: 
+  ↓secretKey [variables.StepVariable-1781589843544]: 
+  ↓region [variables.StepVariable-1781589843546]: 
+  ↓sessionToken [variables.StepVariable-1781589843548]: 
+↓getObject_c8oDetails [steps.SimpleSourceStep-1781611200013]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766985
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: getObjectC8oDetails
+↓getObject_s3ErrorCode [steps.SimpleSourceStep-1781611200014]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766985
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: getObjectS3ErrorCode
+↓getObject_rawText [steps.SimpleSourceStep-1781611200015]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766985
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: getObjectRawText
+↓getObject_content [steps.SimpleSourceStep-1781611200028]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766985
+        - java.lang.String: 
+          - ↑value: ./document/s3TestContent/text()
+  variableName: getObjectContent
+↓check_getObject [steps.SimpleStep-1781589766987]: 
+  comment: Check getObject result and record PASS/FAIL
+  expression: 'recordS3Result(''getObject'', getObjectC8oDetails, getObjectS3ErrorCode, getObjectRawText, getObjectContent == testContent ? getObjectContent : '''', null);'
+↓run_deleteObject [steps.SequenceStep-1781589766989]: 
+  comment: Executes deleteObject test by calling lib_s3.deleteObject sequence
+  output: true
+  sourceSequence: lib_s3.deleteObject
+  ↓bucketName [variables.StepVariable-1781589850839]: 
+  ↓objectKey [variables.StepVariable-1781589850841]: 
+  ↓accessKey [variables.StepVariable-1781589850843]: 
+  ↓secretKey [variables.StepVariable-1781589850845]: 
+  ↓region [variables.StepVariable-1781589850847]: 
+  ↓sessionToken [variables.StepVariable-1781589850849]: 
+↓deleteObject_c8oDetails [steps.SimpleSourceStep-1781611200016]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766989
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: deleteObjectC8oDetails
+↓deleteObject_s3ErrorCode [steps.SimpleSourceStep-1781611200017]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766989
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: deleteObjectS3ErrorCode
+↓deleteObject_rawText [steps.SimpleSourceStep-1781611200018]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766989
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: deleteObjectRawText
+↓deleteObject_deletedKey [steps.SimpleSourceStep-1781680864934]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766989
+        - java.lang.String: 
+          - ↑value: ./document/DeleteObjectResult/Key/text()
+  variableName: deleteObjectDeletedKey
+↓check_deleteObject [steps.SimpleStep-1781589766991]: 
+  comment: Check deleteObject result and record PASS/FAIL
+  expression: 'recordS3Result(''deleteObject'', deleteObjectC8oDetails, deleteObjectS3ErrorCode, deleteObjectRawText, deleteObjectDeletedKey == testObjectKey ? deleteObjectDeletedKey : '''', null, false);'
+↓run_deleteBucket [steps.SequenceStep-1781589766993]: 
+  comment: Executes deleteBucket test by calling lib_s3.deleteBucket sequence
+  output: true
+  sourceSequence: lib_s3.deleteBucket
+  ↓bucketName [variables.StepVariable-1781589857422]: 
+  ↓accessKey [variables.StepVariable-1781589857424]: 
+  ↓secretKey [variables.StepVariable-1781589857426]: 
+  ↓region [variables.StepVariable-1781589857428]: 
+  ↓sessionToken [variables.StepVariable-1781589857430]: 
+↓deleteBucket_c8oDetails [steps.SimpleSourceStep-1781611200019]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766993
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: deleteBucketC8oDetails
+↓deleteBucket_s3ErrorCode [steps.SimpleSourceStep-1781611200020]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766993
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: deleteBucketS3ErrorCode
+↓deleteBucket_rawText [steps.SimpleSourceStep-1781611200021]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766993
+        - java.lang.String: 
+          - ↑value: ./document/text()
+  variableName: deleteBucketRawText
+↓deleteBucket_deletedBucket [steps.SimpleSourceStep-1781680864969]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781589766993
+        - java.lang.String: 
+          - ↑value: ./document/DeleteBucketResult/Bucket/text()
+  variableName: deleteBucketDeletedBucket
+↓check_deleteBucket [steps.SimpleStep-1781589766995]: 
+  comment: Check deleteBucket result and record PASS/FAIL
+  expression: 'recordS3Result(''deleteBucket'', deleteBucketC8oDetails, deleteBucketS3ErrorCode, deleteBucketRawText, deleteBucketDeletedBucket == testBucketName ? deleteBucketDeletedBucket : '''', null, false);'
+↓generate_report [steps.SimpleStep-1781589766997]: 
+  comment: Generates final test report with all results
+  expression: |
+    'var report = ''=== lib_s3 Non-Regression Test Report ==='' + ''\n'';
+    report += ''Timestamp: '' + testTimestamp + ''\n'';
+    report += ''========================================'' + ''\n\n'';
+    
+    for (var op in testResults) {
+        report += op + '': '' + testResults[op] + ''\n'';
+    }
+    
+    report += ''\n'';
+    report += ''----------------------------------------'' + ''\n'';
+    report += ''Tests Passed: '' + testsPassed + ''\n'';
+    report += ''Tests Failed: '' + testsFailed + ''\n'';
+    report += ''Overall Success: '' + overallSuccess + ''\n'';
+    report += ''========================================'' + ''\n'';
+    
+    finalMessage = report;
+    log.info(report);'
+↓finalMessage [steps.ElementStep-1781611200022]: 
+  expression: finalMessage
+  nodeName: finalMessage
+↓testsPassed [steps.ElementStep-1781611200023]: 
+  expression: ''''' + testsPassed'
+  nodeName: testsPassed
+↓testsFailed [steps.ElementStep-1781611200024]: 
+  expression: ''''' + testsFailed'
+  nodeName: testsFailed
+↓overallSuccess [steps.ElementStep-1781611200025]: 
+  expression: ''''' + overallSuccess'
+  nodeName: overallSuccess
+  schemaDataType: xsd:boolean
+↓accessKey [variables.RequestableVariable-1781589657147]: 
+  comment: AWS Access Key ID for S3 test operations
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1781589657149]: 
+  comment: AWS Secret Access Key for S3 test operations
+  value: ${lib_s3.s3.secretKey.secret}
+↓region [variables.RequestableVariable-1781589657151]: 
+  comment: AWS Region for S3 test operations
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1781589657153]: 
+  comment: AWS Session Token for S3 test operations (optional)
+  value: ${lib_s3.s3.sessionToken.secret}
+↓testBucketName [variables.RequestableVariable-1781589657155]: 
+  comment: Unique test bucket name with timestamp
+  value: ${lib_s3.s3_regression_test.bucketPrefix}
+↓testObjectKey [variables.RequestableVariable-1781589657157]: 
+  comment: Unique test object key with timestamp
+  value: ${lib_s3.s3_regression_test.objectPrefix}
+↓testContent [variables.RequestableVariable-1781589657159]: 
+  comment: Content to upload for test
+  value: ${lib_s3.s3_regression_test.content}

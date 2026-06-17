@@ -1,0 +1,82 @@
+comment: Sequence to list all S3 buckets accessible with configured AWS credentials. Calls listBuckets transaction with required authentication parameters.
+↓signS3Request [steps.SimpleStep-1781599617329]: 
+  comment: Compute AWS Signature V4 headers for the S3 request.
+  expression: |
+    'include("js/s3_sigv4.js");
+    var s3SignedHeaders = C8O.s3SigV4.sign({
+      method: "GET",
+      path: "/",
+      query: {},
+      accessKey: accessKey,
+      secretKey: secretKey,
+      region: "us-east-1",
+      sessionToken: sessionToken
+    });
+    __header_Authorization = s3SignedHeaders.authorization;
+    __header_x_amz_date = s3SignedHeaders.amzDate;
+    __header_x_amz_content_sha256 = s3SignedHeaders.contentSha256;
+    __header_x_amz_security_token = s3SignedHeaders.securityToken || null;'
+↓signedAuthorization [steps.ElementStep-1781613200001]: 
+  expression: __header_Authorization
+  nodeName: signedAuthorization
+  output: false
+↓signedAmzDate [steps.ElementStep-1781613200002]: 
+  expression: __header_x_amz_date
+  nodeName: signedAmzDate
+  output: false
+↓signedContentSha256 [steps.ElementStep-1781613200003]: 
+  expression: __header_x_amz_content_sha256
+  nodeName: signedContentSha256
+  output: false
+↓callListBuckets [steps.TransactionStep-1781586708510]: 
+  comment: Transaction Step - Calls the listBuckets HTTP transaction to list all S3 buckets with configured AWS authentication parameters.
+  sourceTransaction: lib_s3.AmazonS3.listBuckets
+  ↓__header_Authorization [variables.StepVariable-1781599631538]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613200001
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_date [variables.StepVariable-1781599631540]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613200002
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_content_sha256 [variables.StepVariable-1781599631542]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613200003
+          - java.lang.String: 
+            - ↑value: ./text()
+↓copyResult [steps.XMLCopyStep-1781637152852]: 
+  comment: Copies the S3 XML response as the public sequence result.
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586708510
+        - java.lang.String: 
+          - ↑value: ./document/*
+↓accessKey [variables.RequestableVariable-1781586708500]: 
+  comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1781586708504]: 
+  comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
+  value: ${lib_s3.s3.secretKey.secret}
+↓region [variables.RequestableVariable-1781586708506]: 
+  comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1781586708508]: 
+  comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
+  value: ${lib_s3.s3.sessionToken.secret}

@@ -1,0 +1,16 @@
+↑convertigo: 8.0.0.m006
+↓lib_s3 [core.Project]: 
+  comment: 'Convertigo library for Amazon S3 bucket operations. Provides HTTP connector and sequences for S3 API access including: list buckets, list objects, upload (put), download (get), delete objects, create bucket, and delete bucket operations. Configure AWS credentials (accessKey, secretKey, region, sessionToken) in each sequence before use.'
+  contextTimeout: 59
+  corsOrigin: =Origin
+  httpSessionTimeout: 60
+  version: 1.0.0
+  ↓AmazonS3 [connectors.HttpConnector]: 🗏 connectors/AmazonS3.yaml
+  ↓createBucket [sequences.GenericSequence]: 🗏 sequences/createBucket.yaml
+  ↓deleteBucket [sequences.GenericSequence]: 🗏 sequences/deleteBucket.yaml
+  ↓deleteObject [sequences.GenericSequence]: 🗏 sequences/deleteObject.yaml
+  ↓getObject [sequences.GenericSequence]: 🗏 sequences/getObject.yaml
+  ↓listBuckets [sequences.GenericSequence]: 🗏 sequences/listBuckets.yaml
+  ↓listObjects [sequences.GenericSequence]: 🗏 sequences/listObjects.yaml
+  ↓putObject [sequences.GenericSequence]: 🗏 sequences/putObject.yaml
+  ↓s3_regression_test [sequences.GenericSequence]: 🗏 sequences/s3_regression_test.yaml

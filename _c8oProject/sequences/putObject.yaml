@@ -1,0 +1,194 @@
+comment: Sequence to upload an object to S3 bucket. Calls putObject transaction with bucket name, object key, MIME type and content to upload.
+↓signS3Request [steps.SimpleStep-1781599617469]: 
+  comment: Compute AWS Signature V4 headers for the S3 request.
+  expression: |
+    'include("js/s3_sigv4.js");
+    var signingRegion = String(region || "").trim();
+    if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
+      signingRegion = "us-east-1";
+    }
+    region = signingRegion;
+    __body = fileContent == null ? "" : String(fileContent);
+    __contentType = String(contentType || "application/octet-stream");
+    var s3SignedHeaders = C8O.s3SigV4.sign({
+      method: "PUT",
+      path: "/" + String(bucketName || "") + "/" + String(objectKey || ""),
+      query: {},
+      unsignedPayload: true,
+      contentType: __contentType,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      region: signingRegion,
+      sessionToken: sessionToken
+    });
+    __header_Authorization = s3SignedHeaders.authorization;
+    __header_x_amz_date = s3SignedHeaders.amzDate;
+    __header_x_amz_content_sha256 = s3SignedHeaders.contentSha256;
+    __header_x_amz_security_token = s3SignedHeaders.securityToken || null;'
+↓signedAuthorization [steps.ElementStep-1781613310001]: 
+  expression: __header_Authorization
+  nodeName: signedAuthorization
+  output: false
+↓signedAmzDate [steps.ElementStep-1781613310002]: 
+  expression: __header_x_amz_date
+  nodeName: signedAmzDate
+  output: false
+↓signedContentSha256 [steps.ElementStep-1781613310003]: 
+  expression: __header_x_amz_content_sha256
+  nodeName: signedContentSha256
+  output: false
+↓requestBucketName [steps.ElementStep-1781613310004]: 
+  expression: bucketName
+  nodeName: requestBucketName
+  output: false
+↓requestObjectKey [steps.ElementStep-1781613310005]: 
+  expression: objectKey
+  nodeName: requestObjectKey
+  output: false
+↓requestBody [steps.ElementStep-1781613310006]: 
+  expression: __body
+  nodeName: requestBody
+  output: false
+↓requestContentType [steps.ElementStep-1781613310007]: 
+  expression: __contentType
+  nodeName: requestContentType
+  output: false
+↓callPutObject [steps.TransactionStep-1781586740580]: 
+  comment: Transaction Step - Calls the putObject HTTP transaction to upload content to S3 with configured AWS authentication parameters.
+  sourceTransaction: lib_s3.AmazonS3.putObject
+  ↓__header_Authorization [variables.StepVariable-1781599963623]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310001
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_date [variables.StepVariable-1781599963625]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310002
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_content_sha256 [variables.StepVariable-1781599963627]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310003
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓bucketName [variables.StepVariable-1781599963631]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310004
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓objectKey [variables.StepVariable-1781599963633]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310005
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__body [variables.StepVariable-1781599963635]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310006
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__contentType [variables.StepVariable-1781599963637]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613310007
+          - java.lang.String: 
+            - ↑value: ./text()
+↓putObjectC8oMessage [steps.SimpleSourceStep-1781680784786]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586740580
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: putObjectC8oMessage
+↓putObjectC8oDetails [steps.SimpleSourceStep-1781680784809]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586740580
+        - java.lang.String: 
+          - ↑value: ./document/error/details/text()
+  variableName: putObjectC8oDetails
+↓detectPutObjectSuccess [steps.SimpleStep-1781680784827]: 
+  expression: |
+    var putObjectMessage = String(putObjectC8oMessage || "");
+    var putObjectDetails = String(putObjectC8oDetails || "");
+    putObjectEmptyResponse = putObjectMessage.indexOf("Unable to parse the XML document") >= 0 || putObjectMessage.indexOf("unexpected exception") >= 0 || putObjectDetails.indexOf("Premature end of file") >= 0;
+↓copyResult [steps.XMLCopyStep-1781678883427]: 
+  comment: Copies the S3 XML response as the public sequence result.
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586740580
+        - java.lang.String: 
+          - ↑value: ./document/*[not(self::error)]
+↓ifPutObjectSuccess [steps.IfStep-1781680784847]: 
+  condition: putObjectEmptyResponse === true
+  ↓PutObjectResult [steps.XMLComplexStep-1781680784849]: 
+    nodeName: PutObjectResult
+    ↓Bucket [steps.ElementStep-1781680784851]: 
+      expression: bucketName
+      nodeName: Bucket
+    ↓Key [steps.ElementStep-1781680784853]: 
+      expression: objectKey
+      nodeName: Key
+    ↓Region [steps.ElementStep-1781680784855]: 
+      expression: region
+      nodeName: Region
+    ↓Status [steps.ElementStep-1781680784857]: 
+      expression: '"uploaded"'
+      nodeName: Status
+↓accessKey [variables.RequestableVariable-1781586740563]: 
+  comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1781586740566]: 
+  comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
+  value: ${lib_s3.s3.secretKey.secret}
+↓region [variables.RequestableVariable-1781586740568]: 
+  comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1781586740570]: 
+  comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
+  value: ${lib_s3.s3.sessionToken.secret}
+↓bucketName [variables.RequestableVariable-1781586740572]: 
+  comment: S3 Bucket Name - Name of the bucket where the object will be uploaded. Must be a valid existing bucket name.
+↓objectKey [variables.RequestableVariable-1781586740574]: 
+  comment: Object Key - The key (path) where the object will be stored in the S3 bucket. This will be the object's unique identifier.
+↓contentType [variables.RequestableVariable-1781586740576]: 
+  comment: Content Type - MIME type of the object being uploaded (e.g., text/plain, application/json, image/png). Default is application/octet-stream.
+  value: application/octet-stream
+↓fileContent [variables.RequestableVariable-1781586740578]: 
+  comment: File Content - Uploaded file to send as the S3 object body. Convertigo stores the upload in a temporary file and passes its path to the sequence.
+  isFileUpload: true

@@ -1,0 +1,164 @@
+↑default: true
+comment: HTTP Connector for Amazon S3 REST API. This connector allows interaction with Amazon S3 storage service through signed HTTP requests. Configure AWS credentials (Access Key, Secret Key) in sequences before use.
+https: true
+port: 443
+server: s3.amazonaws.com
+↓createBucket [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to create a new S3 bucket. Uses PUT method with bucket name in path. Bucket will be created in the region specified by parameters.
+  httpVerb: PUT
+  subDir: '{bucketName}'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400001]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599532101]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599532116]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599532129]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599532142]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+  ↓__body [variables.RequestableHttpVariable-1781599568926]: 
+    cachedKey: false
+    httpMethod: POST
+    httpName: __body
+  ↓__contentType [variables.RequestableHttpVariable-1781599568947]: 
+    cachedKey: false
+    httpMethod: POST
+    httpName: __contentType
+↓deleteBucket [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to delete an S3 bucket. Uses DELETE method with bucket name in path. Bucket must be completely empty to be deleted.
+  httpVerb: DELETE
+  subDir: '{bucketName}'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400002]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599532033]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599532061]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599532082]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599532092]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+↓deleteObject [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to delete an object from S3 bucket. Uses DELETE method with /bucket/object path. Object will be permanently deleted and cannot be recovered.
+  httpVerb: DELETE
+  subDir: '{bucketName}/{objectKey}'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400003]: 
+    cachedKey: false
+  ↓objectKey [variables.RequestableHttpVariable-1781613400004]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599508517]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599508525]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599508536]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508549]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+↓getObject [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path. Returns binary or text content of the requested object.
+  subDir: '{bucketName}/{objectKey}'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400005]: 
+    cachedKey: false
+  ↓objectKey [variables.RequestableHttpVariable-1781613400006]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599508480]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599508488]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599508498]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508506]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+↓listBuckets [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to list all S3 buckets accessible with configured AWS credentials. Uses GET method on S3 API root. Returns complete list of available buckets for the AWS account.
+  subDir: /
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599463767]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599472486]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599508377]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508394]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+↓listObjects [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to list objects in a specific S3 bucket. Uses ListObjectsV2 API with list-type=2 parameter. Allows filtering with prefix and delimiter, and limits results with max-keys.
+  subDir: '{bucketName}?list-type=2'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400007]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599508404]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599508415]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599508425]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508435]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+  ↓prefix [variables.RequestableHttpVariable-1781599508445]: 
+    httpName: prefix
+  ↓delimiter [variables.RequestableHttpVariable-1781599508454]: 
+    httpName: delimiter
+  ↓maxKeys [variables.RequestableHttpVariable-1781599508464]: 
+    httpName: max-keys
+↓putObject [transactions.XmlHttpTransaction]: 
+  accessibility: Public
+  comment: HTTP Transaction to upload an object to S3 bucket. Uses PUT method with /bucket/object path. Content to upload must be provided in request body with appropriate Content-Type.
+  httpVerb: PUT
+  subDir: '{bucketName}/{objectKey}'
+  ↓bucketName [variables.RequestableHttpVariable-1781613400008]: 
+    cachedKey: false
+  ↓objectKey [variables.RequestableHttpVariable-1781613400009]: 
+    cachedKey: false
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781599532153]: 
+    cachedKey: false
+    httpName: Authorization
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599532164]: 
+    cachedKey: false
+    httpName: x-amz-date
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599532177]: 
+    cachedKey: false
+    httpName: x-amz-content-sha256
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599532186]: 
+    cachedKey: false
+    httpName: x-amz-security-token
+  ↓__body [variables.RequestableHttpVariable-1781599532195]: 
+    cachedKey: false
+    comment: Reserved body variable. Its value is the file path to upload as the raw PUT body.
+    doFileUploadMode: multipartFormData
+    httpMethod: POST
+    httpName: __body
+    isFileUpload: true
+  ↓__contentType [variables.RequestableHttpVariable-1781599532209]: 
+    cachedKey: false
+    httpMethod: POST
+    httpName: __contentType

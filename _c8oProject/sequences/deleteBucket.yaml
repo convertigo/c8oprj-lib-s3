@@ -1,0 +1,140 @@
+comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bucket name to delete. Bucket must be empty to be successfully deleted.
+↓signS3Request [steps.SimpleStep-1781599617428]: 
+  comment: Compute AWS Signature V4 headers for the S3 request.
+  expression: |
+    'include("js/s3_sigv4.js");
+    var signingRegion = String(region || "").trim();
+    if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
+      signingRegion = "us-east-1";
+    }
+    region = signingRegion;
+    var s3SignedHeaders = C8O.s3SigV4.sign({
+      method: "DELETE",
+      path: "/" + String(bucketName || ""),
+      query: {},
+      accessKey: accessKey,
+      secretKey: secretKey,
+      region: signingRegion,
+      sessionToken: sessionToken
+    });
+    __header_Authorization = s3SignedHeaders.authorization;
+    __header_x_amz_date = s3SignedHeaders.amzDate;
+    __header_x_amz_content_sha256 = s3SignedHeaders.contentSha256;
+    __header_x_amz_security_token = s3SignedHeaders.securityToken || null;'
+↓signedAuthorization [steps.ElementStep-1781613350001]: 
+  expression: __header_Authorization
+  nodeName: signedAuthorization
+  output: false
+↓signedAmzDate [steps.ElementStep-1781613350002]: 
+  expression: __header_x_amz_date
+  nodeName: signedAmzDate
+  output: false
+↓signedContentSha256 [steps.ElementStep-1781613350003]: 
+  expression: __header_x_amz_content_sha256
+  nodeName: signedContentSha256
+  output: false
+↓requestBucketName [steps.ElementStep-1781613350004]: 
+  expression: bucketName
+  nodeName: requestBucketName
+  output: false
+↓callDeleteBucket [steps.TransactionStep-1781586751759]: 
+  comment: Transaction Step - Calls the deleteBucket HTTP transaction to remove an S3 bucket with configured AWS authentication parameters.
+  sourceTransaction: lib_s3.AmazonS3.deleteBucket
+  ↓__header_Authorization [variables.StepVariable-1781599963580]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613350001
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_date [variables.StepVariable-1781599963582]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613350002
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_content_sha256 [variables.StepVariable-1781599963584]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613350003
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓bucketName [variables.StepVariable-1781599963588]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613350004
+          - java.lang.String: 
+            - ↑value: ./text()
+↓deleteBucketC8oMessage [steps.SimpleSourceStep-1781680785064]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: deleteBucketC8oMessage
+↓deleteBucketC8oDetails [steps.SimpleSourceStep-1781680785081]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/error/details/text()
+  variableName: deleteBucketC8oDetails
+↓detectDeleteBucketSuccess [steps.SimpleStep-1781680785100]: 
+  expression: |
+    var deleteBucketMessage = String(deleteBucketC8oMessage || "");
+    var deleteBucketDetails = String(deleteBucketC8oDetails || "");
+    deleteBucketEmptyResponse = deleteBucketMessage.indexOf("Unable to parse the XML document") >= 0 || deleteBucketMessage.indexOf("unexpected exception") >= 0 || deleteBucketDetails.indexOf("Premature end of file") >= 0;
+↓copyResult [steps.XMLCopyStep-1781678968438]: 
+  comment: Copies the S3 XML response as the public sequence result.
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/*[not(self::error)]
+↓ifDeleteBucketSuccess [steps.IfStep-1781680785116]: 
+  condition: deleteBucketEmptyResponse === true
+  ↓DeleteBucketResult [steps.XMLComplexStep-1781680785118]: 
+    nodeName: DeleteBucketResult
+    ↓Bucket [steps.ElementStep-1781680785120]: 
+      expression: bucketName
+      nodeName: Bucket
+    ↓Region [steps.ElementStep-1781680785122]: 
+      expression: region
+      nodeName: Region
+    ↓Status [steps.ElementStep-1781680785124]: 
+      expression: '"deleted"'
+      nodeName: Status
+↓accessKey [variables.RequestableVariable-1781586751749]: 
+  comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1781586751751]: 
+  comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
+  value: ${lib_s3.s3.secretKey.secret}
+↓region [variables.RequestableVariable-1781586751753]: 
+  comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1781586751755]: 
+  comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
+  value: ${lib_s3.s3.sessionToken.secret}
+↓bucketName [variables.RequestableVariable-1781586751757]: 
+  comment: S3 Bucket Name - Name of the bucket to delete. Must be a valid existing bucket name and must be empty to be deleted.

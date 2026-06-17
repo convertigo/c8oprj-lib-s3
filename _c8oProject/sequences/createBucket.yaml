@@ -1,0 +1,178 @@
+comment: Sequence to create a new S3 bucket. Calls createBucket transaction with bucket name and optional region parameter.
+↓signS3Request [steps.SimpleStep-1781599617452]: 
+  comment: Compute AWS Signature V4 headers for the S3 request.
+  expression: |
+    'include("js/s3_sigv4.js");
+    var createBucketRegion = String(bucketRegion || "").trim();
+    var signingRegion = String(region || "").trim();
+    if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
+      signingRegion = "us-east-1";
+    }
+    __body = "";
+    __contentType = "";
+    if (createBucketRegion && createBucketRegion !== "us-east-1") {
+      __body = "<CreateBucketConfiguration xmlns=\"http://s3.amazonaws.com/doc/2006-03-01/\"><LocationConstraint>" + createBucketRegion.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</LocationConstraint></CreateBucketConfiguration>";
+      __contentType = "application/xml";
+      signingRegion = createBucketRegion;
+    }
+    region = signingRegion;
+    var s3SignedHeaders = C8O.s3SigV4.sign({
+      method: "PUT",
+      path: "/" + String(bucketName || ""),
+      query: {},
+      payload: __body,
+      contentType: __contentType,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      region: signingRegion,
+      sessionToken: sessionToken
+    });
+    __header_Authorization = s3SignedHeaders.authorization;
+    __header_x_amz_date = s3SignedHeaders.amzDate;
+    __header_x_amz_content_sha256 = s3SignedHeaders.contentSha256;
+    __header_x_amz_security_token = s3SignedHeaders.securityToken || null;'
+↓signedAuthorization [steps.ElementStep-1781613300001]: 
+  expression: __header_Authorization
+  nodeName: signedAuthorization
+  output: false
+↓signedAmzDate [steps.ElementStep-1781613300002]: 
+  expression: __header_x_amz_date
+  nodeName: signedAmzDate
+  output: false
+↓signedContentSha256 [steps.ElementStep-1781613300003]: 
+  expression: __header_x_amz_content_sha256
+  nodeName: signedContentSha256
+  output: false
+↓requestBucketName [steps.ElementStep-1781613300004]: 
+  expression: bucketName
+  nodeName: requestBucketName
+  output: false
+↓requestBody [steps.ElementStep-1781613300005]: 
+  expression: __body
+  nodeName: requestBody
+  output: false
+↓requestContentType [steps.ElementStep-1781613300006]: 
+  expression: __contentType
+  nodeName: requestContentType
+  output: false
+↓callCreateBucket [steps.TransactionStep-1781586748174]: 
+  comment: Transaction Step - Calls the createBucket HTTP transaction to create a new S3 bucket with configured AWS authentication parameters.
+  sourceTransaction: lib_s3.AmazonS3.createBucket
+  ↓__header_Authorization [variables.StepVariable-1781599963600]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300001
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_date [variables.StepVariable-1781599963602]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300002
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_content_sha256 [variables.StepVariable-1781599963604]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300003
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓bucketName [variables.StepVariable-1781599963608]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300004
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__body [variables.StepVariable-1781599963610]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300005
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__contentType [variables.StepVariable-1781599963612]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1781613300006
+          - java.lang.String: 
+            - ↑value: ./text()
+↓createBucketC8oMessage [steps.SimpleSourceStep-1781679657065]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text()
+  variableName: createBucketC8oMessage
+↓createBucketC8oDetails [steps.SimpleSourceStep-1781679665494]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/error/details/text()
+  variableName: createBucketC8oDetails
+↓detectCreateBucketSuccess [steps.SimpleStep-1781679681193]: 
+  expression: |
+    var createBucketMessage = String(createBucketC8oMessage || "");
+    var createBucketDetails = String(createBucketC8oDetails || "");
+    createBucketEmptyResponse = createBucketMessage.indexOf("Unable to parse the XML document") >= 0 || createBucketDetails.indexOf("Premature end of file") >= 0;
+↓copyResult [steps.XMLCopyStep-1781678863674]: 
+  comment: Copies the S3 XML response as the public sequence result.
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/*[not(self::error)]
+↓ifCreateBucketSuccess [steps.IfStep-1781679691857]: 
+  condition: createBucketEmptyResponse === true
+  ↓CreateBucketResult [steps.XMLComplexStep-1781679691859]: 
+    nodeName: CreateBucketResult
+    ↓Bucket [steps.ElementStep-1781679691861]: 
+      expression: bucketName
+      nodeName: Bucket
+    ↓Region [steps.ElementStep-1781679691863]: 
+      expression: region
+      nodeName: Region
+    ↓Status [steps.ElementStep-1781679691865]: 
+      expression: '"created"'
+      nodeName: Status
+↓accessKey [variables.RequestableVariable-1781586748162]: 
+  comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1781586748164]: 
+  comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
+  value: ${lib_s3.s3.secretKey.secret}
+↓region [variables.RequestableVariable-1781586748166]: 
+  comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1781586748168]: 
+  comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
+  value: ${lib_s3.s3.sessionToken.secret}
+↓bucketName [variables.RequestableVariable-1781586748170]: 
+  comment: S3 Bucket Name - Name for the new bucket to be created. Must be globally unique across all AWS accounts and follow S3 naming conventions.
+↓bucketRegion [variables.RequestableVariable-1781586748172]: 
+  comment: Bucket Region - Geographic region where the new bucket will be created. If empty, uses the connector's default region.
