@@ -16,9 +16,6 @@ Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, 
 
 For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body.
 
-AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token.
-
-Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
 
 
 <details><summary><span style="color:DarkGoldenRod"><i>Connectors</i></span></summary><blockquote><p>
