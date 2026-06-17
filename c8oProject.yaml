@@ -29,6 +29,7 @@
     The AmazonS3 connector server property references lib_s3.s3.endpoint, and the same endpoint is used as the signed Host header. If the endpoint is not provided to the signing helper, it falls back to s3.amazonaws.com.
     
     For putObject, provide fileContent as a file upload variable. Convertigo stores the upload as a temporary file and sends that file as the raw S3 PUT body.
+    
     '
   contextTimeout: 59
   corsOrigin: =Origin

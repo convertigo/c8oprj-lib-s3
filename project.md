@@ -7,8 +7,8 @@ What this library can do:
 
 | Capability | Sequence | Description |
 | --- | --- | --- |
-| List buckets | listBuckets | Returns the S3 buckets accessible with the configured AWS credentials. |
-| Create a bucket | createBucket | Creates a new S3 bucket in the configured AWS region. |
+| List buckets | listBuckets | Returns the S3 buckets accessible with the configured S3 credentials and endpoint. |
+| Create a bucket | createBucket | Creates a new S3 bucket in the configured region. |
 | Upload an object | putObject | Uploads a file to a bucket using a Convertigo file upload variable as the object body. |
 | List objects | listObjects | Lists objects in a bucket with optional prefix, delimiter, and maxKeys filters. |
 | Download an object | getObject | Retrieves an object from a bucket by object key. |
@@ -18,13 +18,15 @@ What this library can do:
 
 Usage: configure these project symbols before calling the public sequences:
 
-| Symbol | Required | Description |
-| --- | --- | --- |
-| lib_s3.s3.accessKey | Yes | AWS access key ID. |
-| lib_s3.s3.secretKey.secret | Yes | AWS secret access key. Store it as a secret symbol. |
-| lib_s3.s3.region | Yes | AWS region used for bucket and object requests. |
-| lib_s3.s3.sessionToken.secret | No | AWS session token for temporary credentials. Store it as a secret symbol when used. |
+| Symbol | Required | Default | Description |
+| --- | --- | --- | --- |
+| lib_s3.s3.endpoint | No | s3.amazonaws.com | S3 API endpoint host used by the HTTP connector and by Signature V4. Use another S3-compatible host when needed. |
+| lib_s3.s3.accessKey | Yes | | S3 access key ID. |
+| lib_s3.s3.secretKey.secret | Yes | | S3 secret access key. Store it as a secret symbol. |
+| lib_s3.s3.region | Yes | | S3 signing region used for bucket and object requests. |
+| lib_s3.s3.sessionToken.secret | No | | Session token for temporary credentials. Store it as a secret symbol when used. |
 
+The AmazonS3 connector server property references lib_s3.s3.endpoint, and the same endpoint is used as the signed Host header. If the endpoint is not provided to the signing helper, it falls back to s3.amazonaws.com.
 
 For putObject, provide fileContent as a file upload variable. Convertigo stores the upload as a temporary file and sends that file as the raw S3 PUT body.
 
@@ -595,6 +597,14 @@ Bucket Region - Geographic region where the new bucket will be created. If empty
 </tr>
 <tr>
 <td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+</td>
+</tr>
+<tr>
+<td>
 <img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;region
 </td>
 <td>
@@ -657,6 +667,14 @@ S3 Bucket Name - Name of the bucket to delete. Must be a valid existing bucket n
 </tr>
 <tr>
 <td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+</td>
+</tr>
+<tr>
+<td>
 <img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;region
 </td>
 <td>
@@ -715,6 +733,14 @@ AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Rep
 </td>
 <td>
 S3 Bucket Name - Name of the bucket containing the object to delete. Must be a valid existing bucket name.
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
 </td>
 </tr>
 <tr>
@@ -789,6 +815,14 @@ S3 Bucket Name - Name of the bucket containing the object to download. Must be a
 </tr>
 <tr>
 <td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+</td>
+</tr>
+<tr>
+<td>
 <img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;objectKey
 </td>
 <td>
@@ -847,6 +881,14 @@ comment
 </td>
 <td>
 AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
 </td>
 </tr>
 <tr>
@@ -917,6 +959,14 @@ S3 Bucket Name - Name of the bucket to list objects from. Must be a valid existi
 </td>
 <td>
 Delimiter - Character used to group keys that share a common prefix. Optional parameter for hierarchical listing.
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
 </td>
 </tr>
 <tr>
@@ -1007,6 +1057,14 @@ Content Type - MIME type of the object being uploaded (e.g., text/plain, applica
 </tr>
 <tr>
 <td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+</td>
+</tr>
+<tr>
+<td>
 <img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;fileContent
 </td>
 <td>
@@ -1073,6 +1131,14 @@ comment
 </td>
 <td>
 AWS Access Key ID for S3 test operations
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;endpoint
+</td>
+<td>
+S3 API endpoint host for non-regression tests. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
 </td>
 </tr>
 <tr>

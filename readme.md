@@ -9,8 +9,8 @@ What this library can do:
 
 | Capability | Sequence | Description |
 | --- | --- | --- |
-| List buckets | listBuckets | Returns the S3 buckets accessible with the configured AWS credentials. |
-| Create a bucket | createBucket | Creates a new S3 bucket in the configured AWS region. |
+| List buckets | listBuckets | Returns the S3 buckets accessible with the configured S3 credentials and endpoint. |
+| Create a bucket | createBucket | Creates a new S3 bucket in the configured region. |
 | Upload an object | putObject | Uploads a file to a bucket using a Convertigo file upload variable as the object body. |
 | List objects | listObjects | Lists objects in a bucket with optional prefix, delimiter, and maxKeys filters. |
 | Download an object | getObject | Retrieves an object from a bucket by object key. |
@@ -20,13 +20,15 @@ What this library can do:
 
 Usage: configure these project symbols before calling the public sequences:
 
-| Symbol | Required | Description |
-| --- | --- | --- |
-| lib_s3.s3.accessKey | Yes | AWS access key ID. |
-| lib_s3.s3.secretKey.secret | Yes | AWS secret access key. Store it as a secret symbol. |
-| lib_s3.s3.region | Yes | AWS region used for bucket and object requests. |
-| lib_s3.s3.sessionToken.secret | No | AWS session token for temporary credentials. Store it as a secret symbol when used. |
+| Symbol | Required | Default | Description |
+| --- | --- | --- | --- |
+| lib_s3.s3.endpoint | No | s3.amazonaws.com | S3 API endpoint host used by the HTTP connector and by Signature V4. Use another S3-compatible host when needed. |
+| lib_s3.s3.accessKey | Yes | | S3 access key ID. |
+| lib_s3.s3.secretKey.secret | Yes | | S3 secret access key. Store it as a secret symbol. |
+| lib_s3.s3.region | Yes | | S3 signing region used for bucket and object requests. |
+| lib_s3.s3.sessionToken.secret | No | | Session token for temporary credentials. Store it as a secret symbol when used. |
 
+The AmazonS3 connector server property references lib_s3.s3.endpoint, and the same endpoint is used as the signed Host header. If the endpoint is not provided to the signing helper, it falls back to s3.amazonaws.com.
 
 For putObject, provide fileContent as a file upload variable. Convertigo stores the upload as a temporary file and sends that file as the raw S3 PUT body.
 
@@ -95,6 +97,9 @@ Sequence to create a new S3 bucket. Calls createBucket transaction with bucket n
 <td>bucketRegion</td><td>Bucket Region - Geographic region where the new bucket will be created. If empty, uses the connector's default region.</td>
 </tr>
 <tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
+</tr>
+<tr>
 <td>region</td><td>AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.</td>
 </tr>
 <tr>
@@ -122,6 +127,9 @@ Sequence to delete an S3 bucket. Calls deleteBucket transaction with bucket name
 <td>bucketName</td><td>S3 Bucket Name - Name of the bucket to delete. Must be a valid existing bucket name and must be empty to be deleted.</td>
 </tr>
 <tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
+</tr>
+<tr>
 <td>region</td><td>AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.</td>
 </tr>
 <tr>
@@ -147,6 +155,9 @@ Sequence to delete an object from S3 bucket. Calls deleteObject transaction with
 </tr>
 <tr>
 <td>bucketName</td><td>S3 Bucket Name - Name of the bucket containing the object to delete. Must be a valid existing bucket name.</td>
+</tr>
+<tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
 </tr>
 <tr>
 <td>objectKey</td><td>Object Key - The key (path) of the object to delete from the S3 bucket. Must be a valid existing object key.</td>
@@ -179,6 +190,9 @@ Sequence to download an object from S3 bucket. Calls getObject transaction with 
 <td>bucketName</td><td>S3 Bucket Name - Name of the bucket containing the object to download. Must be a valid existing bucket name.</td>
 </tr>
 <tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
+</tr>
+<tr>
 <td>objectKey</td><td>Object Key - The key (path) of the object to download from the S3 bucket. Must be a valid existing object key.</td>
 </tr>
 <tr>
@@ -204,6 +218,9 @@ Sequence to list all S3 buckets accessible with configured AWS credentials. Call
 </tr>
 <tr>
 <td>accessKey</td><td>AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.</td>
+</tr>
+<tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
 </tr>
 <tr>
 <td>region</td><td>AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.</td>
@@ -234,6 +251,9 @@ Sequence to list objects in a specific S3 bucket. Calls listObjects transaction 
 </tr>
 <tr>
 <td>delimiter</td><td>Delimiter - Character used to group keys that share a common prefix. Optional parameter for hierarchical listing.</td>
+</tr>
+<tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
 </tr>
 <tr>
 <td>maxKeys</td><td>Max Keys - Maximum number of object keys to return in response. Default is 1000, maximum is 1000.</td>
@@ -272,6 +292,9 @@ Sequence to upload an object to S3 bucket. Calls putObject transaction with buck
 <td>contentType</td><td>Content Type - MIME type of the object being uploaded (e.g., text/plain, application/json, image/png). Default is application/octet-stream.</td>
 </tr>
 <tr>
+<td>endpoint</td><td>S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
+</tr>
+<tr>
 <td>fileContent</td><td>File Content - Uploaded file to send as the S3 object body. Convertigo stores the upload in a temporary file and passes its path to the sequence.</td>
 </tr>
 <tr>
@@ -300,6 +323,9 @@ Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operatio
 </tr>
 <tr>
 <td>accessKey</td><td>AWS Access Key ID for S3 test operations</td>
+</tr>
+<tr>
+<td>endpoint</td><td>S3 API endpoint host for non-regression tests. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.</td>
 </tr>
 <tr>
 <td>region</td><td>AWS Region for S3 test operations</td>
