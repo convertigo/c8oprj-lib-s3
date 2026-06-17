@@ -3,6 +3,19 @@
 
 Amazon S3 helper library for Convertigo.
 
+What this library can do:
+
+| Capability | Sequence | Description |
+| --- | --- | --- |
+| List buckets | listBuckets | Returns the S3 buckets accessible with the configured AWS credentials. |
+| Create a bucket | createBucket | Creates a new S3 bucket in the configured AWS region. |
+| Upload an object | putObject | Uploads a file to a bucket using a Convertigo file upload variable as the object body. |
+| List objects | listObjects | Lists objects in a bucket with optional prefix, delimiter, and maxKeys filters. |
+| Download an object | getObject | Retrieves an object from a bucket by object key. |
+| Delete an object | deleteObject | Deletes one object from a bucket. |
+| Delete a bucket | deleteBucket | Deletes an empty S3 bucket. |
+| Run regression checks | s3_regression_test | Executes the create/upload/list/get/delete cleanup flow to validate the configured project. |
+
 Usage: configure these project symbols before calling the public sequences:
 
 | Symbol | Required | Description |
@@ -12,9 +25,8 @@ Usage: configure these project symbols before calling the public sequences:
 | lib_s3.s3.region | Yes | AWS region used for bucket and object requests. |
 | lib_s3.s3.sessionToken.secret | No | AWS session token for temporary credentials. Store it as a secret symbol when used. |
 
-Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket.
 
-For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body.
+For putObject, provide fileContent as a file upload variable. Convertigo stores the upload as a temporary file and sends that file as the raw S3 PUT body.
 
 
 
