@@ -3,7 +3,25 @@
 
 # lib_s3
 
-Amazon S3 helper library for Convertigo. Usage: configure the project symbols lib_s3.s3.accessKey, lib_s3.s3.secretKey.secret, lib_s3.s3.region, and optionally lib_s3.s3.sessionToken.secret for temporary AWS credentials. Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket. For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body. AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token. Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
+Amazon S3 helper library for Convertigo.
+
+Usage: configure these project symbols before calling the public sequences:
+
+| Symbol | Required | Description |
+| --- | --- | --- |
+| lib_s3.s3.accessKey | Yes | AWS access key ID. |
+| lib_s3.s3.secretKey.secret | Yes | AWS secret access key. Store it as a secret symbol. |
+| lib_s3.s3.region | Yes | AWS region used for bucket and object requests. |
+| lib_s3.s3.sessionToken.secret | No | AWS session token for temporary credentials. Store it as a secret symbol when used. |
+
+Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket.
+
+For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body.
+
+AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token.
+
+Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
+
 
 
 For more technical informations : [documentation](./project.md)
@@ -33,13 +51,13 @@ For more technical informations : [documentation](./project.md)
      <tr><td>To contribute</td><td>
 
      ```
-     lib_s3=/Users/opic/runtime-New84/lib_s3/.git:branch=master
+     lib_s3=https://github.com/convertigo/c8oprj-lib-s3.git:branch=master
      ```
      </td></tr>
      <tr><td>To simply use</td><td>
 
      ```
-     lib_s3=/Users/opic/runtime-New84/lib_s3//archive/master.zip
+     lib_s3=https://github.com/convertigo/c8oprj-lib-s3/archive/master.zip
      ```
      </td></tr>
     </table>
@@ -293,5 +311,6 @@ Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operatio
 <td>testObjectKey</td><td>Unique test object key with timestamp</td>
 </tr>
 </table>
+
 
 

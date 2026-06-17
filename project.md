@@ -1,7 +1,25 @@
 
 # ![](https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/core/images/project_color_16x16.png?raw=true "Project") lib_s3
 
-Amazon S3 helper library for Convertigo. Usage: configure the project symbols lib_s3.s3.accessKey, lib_s3.s3.secretKey.secret, lib_s3.s3.region, and optionally lib_s3.s3.sessionToken.secret for temporary AWS credentials. Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket. For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body. AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token. Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
+Amazon S3 helper library for Convertigo.
+
+Usage: configure these project symbols before calling the public sequences:
+
+| Symbol | Required | Description |
+| --- | --- | --- |
+| lib_s3.s3.accessKey | Yes | AWS access key ID. |
+| lib_s3.s3.secretKey.secret | Yes | AWS secret access key. Store it as a secret symbol. |
+| lib_s3.s3.region | Yes | AWS region used for bucket and object requests. |
+| lib_s3.s3.sessionToken.secret | No | AWS session token for temporary credentials. Store it as a secret symbol when used. |
+
+Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket.
+
+For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body.
+
+AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token.
+
+Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
+
 
 <details><summary><span style="color:DarkGoldenRod"><i>Connectors</i></span></summary><blockquote><p>
 
