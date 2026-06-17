@@ -3,10 +3,17 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
   comment: Compute AWS Signature V4 headers for the S3 request.
   expression: |
     'include("js/s3_sigv4.js");
+    var signingEndpoint = C8O.s3SigV4.resolveHost(endpoint, "s3.amazonaws.com");
+    requestUrl = C8O.s3SigV4.url({
+      host: signingEndpoint,
+      path: "/",
+      query: {}
+    });
     var s3SignedHeaders = C8O.s3SigV4.sign({
       method: "GET",
       path: "/",
       query: {},
+      host: signingEndpoint,
       accessKey: accessKey,
       secretKey: secretKey,
       region: "us-east-1",
@@ -28,8 +35,20 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
   expression: __header_x_amz_content_sha256
   nodeName: signedContentSha256
   output: false
+↓requestUrl [steps.ElementStep-1781711102893]: 
+  expression: requestUrl
+  nodeName: requestUrl
+  output: false
 ↓callListBuckets [steps.TransactionStep-1781586708510]: 
   comment: Transaction Step - Calls the listBuckets HTTP transaction to list all S3 buckets with configured AWS authentication parameters.
+  connectionStringDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781711102893
+        - java.lang.String: 
+          - ↑value: ./text()
   sourceTransaction: lib_s3.AmazonS3.listBuckets
   ↓__header_Authorization [variables.StepVariable-1781599631538]: 
     sourceDefinition: 
@@ -58,6 +77,58 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
             - ↑value: 1781613200003
           - java.lang.String: 
             - ↑value: ./text()
+↓listBucketsS3ErrorCode [steps.SimpleSourceStep-1781712405432]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586708510
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: listBucketsS3ErrorCode
+↓listBucketsS3ErrorMessage [steps.SimpleSourceStep-1781712405449]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586708510
+        - java.lang.String: 
+          - ↑value: ./document/Error/Message/text()
+  variableName: listBucketsS3ErrorMessage
+↓listBucketsS3RequestId [steps.SimpleSourceStep-1781712405462]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586708510
+        - java.lang.String: 
+          - ↑value: ./document/Error/RequestId/text()
+  variableName: listBucketsS3RequestId
+↓ifListBucketsS3Error [steps.IfStep-1781712405475]: 
+  condition: String(listBucketsS3ErrorCode || "") !== ""
+  ↓Error_structure [steps.XMLErrorStep-1781712405477]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '(listBucketsS3ErrorCode ? "S3 Code: " + listBucketsS3ErrorCode : "") + (listBucketsS3RequestId ? " - RequestId: " + listBucketsS3RequestId : "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: listBucketsS3ErrorMessage || listBucketsS3ErrorCode
+  ↓Return [steps.ReturnStep-1781712405479]: 
 ↓copyResult [steps.XMLCopyStep-1781637152852]: 
   comment: Copies the S3 XML response as the public sequence result.
   sourceDefinition: 
@@ -80,3 +151,6 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
 ↓sessionToken [variables.RequestableVariable-1781586708508]: 
   comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
   value: ${lib_s3.s3.sessionToken.secret}
+↓endpoint [variables.RequestableVariable-1781709502480]: 
+  comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}

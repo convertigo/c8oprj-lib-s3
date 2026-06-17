@@ -1,8 +1,32 @@
 comment: Sequence to create a new S3 bucket. Calls createBucket transaction with bucket name and optional region parameter.
+↓validateRequiredVariables [steps.IfStep-1781714228353]: 
+  comment: Fail fast when required input variables are missing.
+  condition: (function(){ missingRequiredVariables = []; if (!String(bucketName || "").trim()) missingRequiredVariables.push("bucketName"); return missingRequiredVariables.length > 0; })()
+  ↓Error_structure [steps.XMLErrorStep-1781714228355]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 'Required variable(s) for createBucket: bucketName'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '"Missing required variable(s): " + missingRequiredVariables.join(", ")'
+  ↓Return [steps.ReturnStep-1781714228357]: 
 ↓signS3Request [steps.SimpleStep-1781599617452]: 
   comment: Compute AWS Signature V4 headers for the S3 request.
   expression: |
     'include("js/s3_sigv4.js");
+    var signingEndpoint = C8O.s3SigV4.resolveHost(endpoint, "s3.amazonaws.com");
     var createBucketRegion = String(bucketRegion || "").trim();
     var signingRegion = String(region || "").trim();
     if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
@@ -16,10 +40,16 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
       signingRegion = createBucketRegion;
     }
     region = signingRegion;
+    requestUrl = C8O.s3SigV4.url({
+      host: signingEndpoint,
+      path: "/" + String(bucketName || ""),
+      query: {}
+    });
     var s3SignedHeaders = C8O.s3SigV4.sign({
       method: "PUT",
       path: "/" + String(bucketName || ""),
       query: {},
+      host: signingEndpoint,
       payload: __body,
       contentType: __contentType,
       accessKey: accessKey,
@@ -55,8 +85,20 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
   expression: __contentType
   nodeName: requestContentType
   output: false
+↓requestUrl [steps.ElementStep-1781711194574]: 
+  expression: requestUrl
+  nodeName: requestUrl
+  output: false
 ↓callCreateBucket [steps.TransactionStep-1781586748174]: 
   comment: Transaction Step - Calls the createBucket HTTP transaction to create a new S3 bucket with configured AWS authentication parameters.
+  connectionStringDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781711194574
+        - java.lang.String: 
+          - ↑value: ./text()
   sourceTransaction: lib_s3.AmazonS3.createBucket
   ↓__header_Authorization [variables.StepVariable-1781599963600]: 
     sourceDefinition: 
@@ -85,15 +127,6 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
             - ↑value: 1781613300003
           - java.lang.String: 
             - ↑value: ./text()
-  ↓bucketName [variables.StepVariable-1781599963608]: 
-    sourceDefinition: 
-      - xmlizable: 
-        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
-        - com.twinsoft.convertigo.beans.common.XMLVector: 
-          - java.lang.String: 
-            - ↑value: 1781613300004
-          - java.lang.String: 
-            - ↑value: ./text()
   ↓__body [variables.StepVariable-1781599963610]: 
     sourceDefinition: 
       - xmlizable: 
@@ -112,6 +145,58 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
             - ↑value: 1781613300006
           - java.lang.String: 
             - ↑value: ./text()
+↓createBucketS3ErrorCode [steps.SimpleSourceStep-1781712133794]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: createBucketS3ErrorCode
+↓createBucketS3ErrorMessage [steps.SimpleSourceStep-1781712137448]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/Error/Message/text()
+  variableName: createBucketS3ErrorMessage
+↓createBucketS3RequestId [steps.SimpleSourceStep-1781712140783]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586748174
+        - java.lang.String: 
+          - ↑value: ./document/Error/RequestId/text()
+  variableName: createBucketS3RequestId
+↓ifCreateBucketS3Error [steps.IfStep-1781712149188]: 
+  condition: String(createBucketS3ErrorCode || "") !== ""
+  ↓Error_structure [steps.XMLErrorStep-1781712149190]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '(createBucketS3ErrorCode ? "S3 Code: " + createBucketS3ErrorCode : "") + (createBucketS3RequestId ? " - RequestId: " + createBucketS3RequestId : "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: createBucketS3ErrorMessage || createBucketS3ErrorCode
+  ↓Return [steps.ReturnStep-1781712149192]: 
 ↓createBucketC8oMessage [steps.SimpleSourceStep-1781679657065]: 
   sourceDefinition: 
     - xmlizable: 
@@ -176,3 +261,6 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
   comment: S3 Bucket Name - Name for the new bucket to be created. Must be globally unique across all AWS accounts and follow S3 naming conventions.
 ↓bucketRegion [variables.RequestableVariable-1781586748172]: 
   comment: Bucket Region - Geographic region where the new bucket will be created. If empty, uses the connector's default region.
+↓endpoint [variables.RequestableVariable-1781709515995]: 
+  comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}

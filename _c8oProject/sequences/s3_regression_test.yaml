@@ -89,6 +89,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589863923]: 
   ↓region [variables.StepVariable-1781589863925]: 
   ↓sessionToken [variables.StepVariable-1781589863927]: 
+  ↓endpoint [variables.StepVariable-1781709583246]: 
 ↓listBuckets_c8oDetails [steps.SimpleSourceStep-1781611200001]: 
   sourceDefinition: 
     - xmlizable: 
@@ -141,6 +142,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589821559]: 
   ↓region [variables.StepVariable-1781589821561]: 
   ↓sessionToken [variables.StepVariable-1781589821563]: 
+  ↓endpoint [variables.StepVariable-1781709583248]: 
 ↓createBucket_c8oDetails [steps.SimpleSourceStep-1781611200004]: 
   sourceDefinition: 
     - xmlizable: 
@@ -196,6 +198,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589830311]: 
   ↓region [variables.StepVariable-1781589830313]: 
   ↓sessionToken [variables.StepVariable-1781589830315]: 
+  ↓endpoint [variables.StepVariable-1781709583250]: 
 ↓putObject_c8oDetails [steps.SimpleSourceStep-1781611200007]: 
   sourceDefinition: 
     - xmlizable: 
@@ -248,6 +251,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589836887]: 
   ↓region [variables.StepVariable-1781589836889]: 
   ↓sessionToken [variables.StepVariable-1781589836891]: 
+  ↓endpoint [variables.StepVariable-1781709583252]: 
 ↓listObjects_c8oDetails [steps.SimpleSourceStep-1781611200010]: 
   sourceDefinition: 
     - xmlizable: 
@@ -301,6 +305,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589843544]: 
   ↓region [variables.StepVariable-1781589843546]: 
   ↓sessionToken [variables.StepVariable-1781589843548]: 
+  ↓endpoint [variables.StepVariable-1781709583254]: 
 ↓getObject_c8oDetails [steps.SimpleSourceStep-1781611200013]: 
   sourceDefinition: 
     - xmlizable: 
@@ -354,6 +359,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589850845]: 
   ↓region [variables.StepVariable-1781589850847]: 
   ↓sessionToken [variables.StepVariable-1781589850849]: 
+  ↓endpoint [variables.StepVariable-1781709583256]: 
 ↓deleteObject_c8oDetails [steps.SimpleSourceStep-1781611200016]: 
   sourceDefinition: 
     - xmlizable: 
@@ -406,6 +412,7 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   ↓secretKey [variables.StepVariable-1781589857426]: 
   ↓region [variables.StepVariable-1781589857428]: 
   ↓sessionToken [variables.StepVariable-1781589857430]: 
+  ↓endpoint [variables.StepVariable-1781709583258]: 
 ↓deleteBucket_c8oDetails [steps.SimpleSourceStep-1781611200019]: 
   sourceDefinition: 
     - xmlizable: 
@@ -503,3 +510,6 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
 ↓testContent [variables.RequestableVariable-1781589657159]: 
   comment: Content to upload for test
   value: ${lib_s3.s3_regression_test.content}
+↓endpoint [variables.RequestableVariable-1781709583260]: 
+  comment: S3 API endpoint host for non-regression tests. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}

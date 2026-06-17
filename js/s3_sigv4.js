@@ -159,6 +159,29 @@ C8O.s3SigV4 = C8O.s3SigV4 || {};
     return trim(value).replace(/\s+/g, " ");
   }
 
+  function normalizeHost(value) {
+    var host = trim(value) || "s3.amazonaws.com";
+    host = host.replace(/^[a-z][a-z0-9+.-]*:\/\//i, "");
+    host = host.replace(/\/.*$/, "");
+    return host || "s3.amazonaws.com";
+  }
+
+  function resolveHost(value, fallback) {
+    var raw = trim(value);
+    if (!raw || raw.indexOf("${") === 0) {
+      raw = trim(fallback) || "s3.amazonaws.com";
+    }
+    return normalizeHost(raw);
+  }
+
+  function requestUrl(options) {
+    var opts = options || {};
+    var protocol = trim(opts.protocol) || "https";
+    var host = resolveHost(opts.host, "s3.amazonaws.com");
+    var query = canonicalQueryString(opts.query || {});
+    return protocol + "://" + host + canonicalUri(opts.path || "/") + (query ? "?" + query : "");
+  }
+
   function canonicalHeaders(headers) {
     var normalized = {};
     var names = Object.keys(headers || {});
@@ -188,7 +211,7 @@ C8O.s3SigV4 = C8O.s3SigV4 || {};
     var region = trim(opts.region) || "us-east-1";
     var service = trim(opts.service) || "s3";
     var method = (trim(opts.method) || "GET").toUpperCase();
-    var host = trim(opts.host) || "s3.amazonaws.com";
+    var host = normalizeHost(opts.host);
     var payload = opts.payload == null ? "" : text(opts.payload);
     var payloadFile = trim(opts.payloadFile);
     var payloadHash = opts.unsignedPayload === true ? "UNSIGNED-PAYLOAD" : (payloadFile ? sha256FileHex(payloadFile) : sha256Hex(payload));
@@ -247,4 +270,6 @@ C8O.s3SigV4 = C8O.s3SigV4 || {};
   }
 
   C8O.s3SigV4.sign = sign;
+  C8O.s3SigV4.resolveHost = resolveHost;
+  C8O.s3SigV4.url = requestUrl;
 })();

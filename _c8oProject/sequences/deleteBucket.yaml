@@ -1,17 +1,47 @@
 comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bucket name to delete. Bucket must be empty to be successfully deleted.
+↓validateRequiredVariables [steps.IfStep-1781714259139]: 
+  comment: Fail fast when required input variables are missing.
+  condition: (function(){ missingRequiredVariables = []; if (!String(bucketName || "").trim()) missingRequiredVariables.push("bucketName"); return missingRequiredVariables.length > 0; })()
+  ↓Error_structure [steps.XMLErrorStep-1781714259141]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 'Required variable(s) for deleteBucket: bucketName'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '"Missing required variable(s): " + missingRequiredVariables.join(", ")'
+  ↓Return [steps.ReturnStep-1781714259143]: 
 ↓signS3Request [steps.SimpleStep-1781599617428]: 
   comment: Compute AWS Signature V4 headers for the S3 request.
   expression: |
     'include("js/s3_sigv4.js");
+    var signingEndpoint = C8O.s3SigV4.resolveHost(endpoint, "s3.amazonaws.com");
     var signingRegion = String(region || "").trim();
     if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
       signingRegion = "us-east-1";
     }
     region = signingRegion;
+    requestUrl = C8O.s3SigV4.url({
+      host: signingEndpoint,
+      path: "/" + String(bucketName || ""),
+      query: {}
+    });
     var s3SignedHeaders = C8O.s3SigV4.sign({
       method: "DELETE",
       path: "/" + String(bucketName || ""),
       query: {},
+      host: signingEndpoint,
       accessKey: accessKey,
       secretKey: secretKey,
       region: signingRegion,
@@ -37,8 +67,20 @@ comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bu
   expression: bucketName
   nodeName: requestBucketName
   output: false
+↓requestUrl [steps.ElementStep-1781711194705]: 
+  expression: requestUrl
+  nodeName: requestUrl
+  output: false
 ↓callDeleteBucket [steps.TransactionStep-1781586751759]: 
   comment: Transaction Step - Calls the deleteBucket HTTP transaction to remove an S3 bucket with configured AWS authentication parameters.
+  connectionStringDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781711194705
+        - java.lang.String: 
+          - ↑value: ./text()
   sourceTransaction: lib_s3.AmazonS3.deleteBucket
   ↓__header_Authorization [variables.StepVariable-1781599963580]: 
     sourceDefinition: 
@@ -67,15 +109,58 @@ comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bu
             - ↑value: 1781613350003
           - java.lang.String: 
             - ↑value: ./text()
-  ↓bucketName [variables.StepVariable-1781599963588]: 
-    sourceDefinition: 
+↓deleteBucketS3ErrorCode [steps.SimpleSourceStep-1781712405671]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: deleteBucketS3ErrorCode
+↓deleteBucketS3ErrorMessage [steps.SimpleSourceStep-1781712405680]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/Error/Message/text()
+  variableName: deleteBucketS3ErrorMessage
+↓deleteBucketS3RequestId [steps.SimpleSourceStep-1781712405688]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586751759
+        - java.lang.String: 
+          - ↑value: ./document/Error/RequestId/text()
+  variableName: deleteBucketS3RequestId
+↓ifDeleteBucketS3Error [steps.IfStep-1781712405701]: 
+  condition: String(deleteBucketS3ErrorCode || "") !== ""
+  ↓Error_structure [steps.XMLErrorStep-1781712405703]: 
+    code: 
       - xmlizable: 
-        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
-        - com.twinsoft.convertigo.beans.common.XMLVector: 
-          - java.lang.String: 
-            - ↑value: 1781613350004
-          - java.lang.String: 
-            - ↑value: ./text()
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '(deleteBucketS3ErrorCode ? "S3 Code: " + deleteBucketS3ErrorCode : "") + (deleteBucketS3RequestId ? " - RequestId: " + deleteBucketS3RequestId : "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: deleteBucketS3ErrorMessage || deleteBucketS3ErrorCode
+  ↓Return [steps.ReturnStep-1781712405705]: 
 ↓deleteBucketC8oMessage [steps.SimpleSourceStep-1781680785064]: 
   sourceDefinition: 
     - xmlizable: 
@@ -138,3 +223,6 @@ comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bu
   value: ${lib_s3.s3.sessionToken.secret}
 ↓bucketName [variables.RequestableVariable-1781586751757]: 
   comment: S3 Bucket Name - Name of the bucket to delete. Must be a valid existing bucket name and must be empty to be deleted.
+↓endpoint [variables.RequestableVariable-1781709525378]: 
+  comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}

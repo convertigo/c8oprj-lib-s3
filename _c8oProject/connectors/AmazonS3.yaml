@@ -2,7 +2,8 @@
 comment: HTTP Connector for Amazon S3 REST API. This connector allows interaction with Amazon S3 storage service through signed HTTP requests. Configure AWS credentials (Access Key, Secret Key) in sequences before use.
 https: true
 port: 443
-server: s3.amazonaws.com
+server: ${lib_s3.s3.endpoint}
+trustAllServerCertificates: false
 ↓createBucket [transactions.XmlHttpTransaction]: 
   accessibility: Public
   comment: HTTP Transaction to create a new S3 bucket. Uses PUT method with bucket name in path. Bucket will be created in the region specified by parameters.

@@ -1,17 +1,47 @@
 comment: Sequence to delete an object from S3 bucket. Calls deleteObject transaction with bucket name and object key to delete.
+↓validateRequiredVariables [steps.IfStep-1781714253997]: 
+  comment: Fail fast when required input variables are missing.
+  condition: (function(){ missingRequiredVariables = []; if (!String(bucketName || "").trim()) missingRequiredVariables.push("bucketName"); if (!String(objectKey || "").trim()) missingRequiredVariables.push("objectKey"); return missingRequiredVariables.length > 0; })()
+  ↓Error_structure [steps.XMLErrorStep-1781714253999]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 'Required variable(s) for deleteObject: bucketName, objectKey'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '"Missing required variable(s): " + missingRequiredVariables.join(", ")'
+  ↓Return [steps.ReturnStep-1781714254001]: 
 ↓signS3Request [steps.SimpleStep-1781599617410]: 
   comment: Compute AWS Signature V4 headers for the S3 request.
   expression: |
     'include("js/s3_sigv4.js");
+    var signingEndpoint = C8O.s3SigV4.resolveHost(endpoint, "s3.amazonaws.com");
     var signingRegion = String(region || "").trim();
     if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
       signingRegion = "us-east-1";
     }
     region = signingRegion;
+    requestUrl = C8O.s3SigV4.url({
+      host: signingEndpoint,
+      path: "/" + String(bucketName || "") + "/" + String(objectKey || ""),
+      query: {}
+    });
     var s3SignedHeaders = C8O.s3SigV4.sign({
       method: "DELETE",
       path: "/" + String(bucketName || "") + "/" + String(objectKey || ""),
       query: {},
+      host: signingEndpoint,
       accessKey: accessKey,
       secretKey: secretKey,
       region: signingRegion,
@@ -41,8 +71,20 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
   expression: objectKey
   nodeName: requestObjectKey
   output: false
+↓requestUrl [steps.ElementStep-1781711194781]: 
+  expression: requestUrl
+  nodeName: requestUrl
+  output: false
 ↓callDeleteObject [steps.TransactionStep-1781586744226]: 
   comment: Transaction Step - Calls the deleteObject HTTP transaction to remove an object from S3 with configured AWS authentication parameters.
+  connectionStringDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781711194781
+        - java.lang.String: 
+          - ↑value: ./text()
   sourceTransaction: lib_s3.AmazonS3.deleteObject
   ↓__header_Authorization [variables.StepVariable-1781599963567]: 
     sourceDefinition: 
@@ -71,24 +113,58 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
             - ↑value: 1781613340003
           - java.lang.String: 
             - ↑value: ./text()
-  ↓bucketName [variables.StepVariable-1781599963575]: 
-    sourceDefinition: 
+↓deleteObjectS3ErrorCode [steps.SimpleSourceStep-1781712405623]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586744226
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: deleteObjectS3ErrorCode
+↓deleteObjectS3ErrorMessage [steps.SimpleSourceStep-1781712405637]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586744226
+        - java.lang.String: 
+          - ↑value: ./document/Error/Message/text()
+  variableName: deleteObjectS3ErrorMessage
+↓deleteObjectS3RequestId [steps.SimpleSourceStep-1781712405646]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781586744226
+        - java.lang.String: 
+          - ↑value: ./document/Error/RequestId/text()
+  variableName: deleteObjectS3RequestId
+↓ifDeleteObjectS3Error [steps.IfStep-1781712405661]: 
+  condition: String(deleteObjectS3ErrorCode || "") !== ""
+  ↓Error_structure [steps.XMLErrorStep-1781712405663]: 
+    code: 
       - xmlizable: 
-        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
-        - com.twinsoft.convertigo.beans.common.XMLVector: 
-          - java.lang.String: 
-            - ↑value: 1781613340004
-          - java.lang.String: 
-            - ↑value: ./text()
-  ↓objectKey [variables.StepVariable-1781599963577]: 
-    sourceDefinition: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
       - xmlizable: 
-        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
-        - com.twinsoft.convertigo.beans.common.XMLVector: 
-          - java.lang.String: 
-            - ↑value: 1781613340005
-          - java.lang.String: 
-            - ↑value: ./text()
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '(deleteObjectS3ErrorCode ? "S3 Code: " + deleteObjectS3ErrorCode : "") + (deleteObjectS3RequestId ? " - RequestId: " + deleteObjectS3RequestId : "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: deleteObjectS3ErrorMessage || deleteObjectS3ErrorCode
+  ↓Return [steps.ReturnStep-1781712405665]: 
 ↓deleteObjectC8oMessage [steps.SimpleSourceStep-1781680784891]: 
   sourceDefinition: 
     - xmlizable: 
@@ -156,3 +232,6 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
   comment: S3 Bucket Name - Name of the bucket containing the object to delete. Must be a valid existing bucket name.
 ↓objectKey [variables.RequestableVariable-1781586744224]: 
   comment: Object Key - The key (path) of the object to delete from the S3 bucket. Must be a valid existing object key.
+↓endpoint [variables.RequestableVariable-1781709534426]: 
+  comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}
