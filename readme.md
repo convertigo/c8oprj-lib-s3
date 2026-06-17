@@ -3,11 +3,12 @@
 
 # lib_s3
 
-Convertigo library for Amazon S3 bucket operations. Provides HTTP connector and sequences for S3 API access including: list buckets, list objects, upload (put), download (get), delete objects, create bucket, and delete bucket operations. Configure AWS credentials (accessKey, secretKey, region, sessionToken) in each sequence before use.
+Amazon S3 helper library for Convertigo. Usage: configure the project symbols lib_s3.s3.accessKey, lib_s3.s3.secretKey.secret, lib_s3.s3.region, and optionally lib_s3.s3.sessionToken.secret for temporary AWS credentials. Public sequences: listBuckets, createBucket, putObject, listObjects, getObject, deleteObject, deleteBucket. For putObject, pass bucketName, objectKey, contentType, and provide fileContent as a file upload variable; Convertigo stores the upload as a temporary file and sends it as the S3 PUT body. AWS Signature V4 headers are computed automatically by the sequences and passed to transactions through __header_Authorization, __header_x_amz_date, __header_x_amz_content_sha256, and optional __header_x_amz_security_token. Run s3_regression_test after configuration changes to validate create/upload/list/get/delete cleanup.
 
 
 For more technical informations : [documentation](./project.md)
 
+- [Installation](#installation)
 - [Sequences](#sequences)
     - [createBucket](#createbucket)
     - [deleteBucket](#deletebucket)
@@ -17,6 +18,32 @@ For more technical informations : [documentation](./project.md)
     - [listObjects](#listobjects)
     - [putObject](#putobject)
     - [s3_regression_test](#s3_regression_test)
+
+
+## Installation
+
+1. In your Convertigo Studio click on ![](https://github.com/convertigo/convertigo/blob/develop/eclipse-plugin-studio/icons/studio/project_import.gif?raw=true "Import a project in treeview") to import a project in the treeview
+2. In the import wizard
+
+   ![](https://github.com/convertigo/convertigo/blob/develop/eclipse-plugin-studio/tomcat/webapps/convertigo/templates/ftl/project_import_wzd.png?raw=true "Import Project")
+   
+   paste the text below into the `Project remote URL` field:
+   <table>
+     <tr><td>Usage</td><td>Click the copy button at the end of the line</td></tr>
+     <tr><td>To contribute</td><td>
+
+     ```
+     lib_s3=/Users/opic/runtime-New84/lib_s3/.git:branch=master
+     ```
+     </td></tr>
+     <tr><td>To simply use</td><td>
+
+     ```
+     lib_s3=/Users/opic/runtime-New84/lib_s3//archive/master.zip
+     ```
+     </td></tr>
+    </table>
+3. Click the `Finish` button. This will automatically import the __lib_s3__ project
 
 
 ## Sequences
@@ -218,7 +245,7 @@ Sequence to upload an object to S3 bucket. Calls putObject transaction with buck
 <td>contentType</td><td>Content Type - MIME type of the object being uploaded (e.g., text/plain, application/json, image/png). Default is application/octet-stream.</td>
 </tr>
 <tr>
-<td>fileContent</td><td>File Content - The actual content to upload to S3. Can be text, binary data, or base64 encoded content depending on the object type.</td>
+<td>fileContent</td><td>File Content - Uploaded file to send as the S3 object body. Convertigo stores the upload in a temporary file and passes its path to the sequence.</td>
 </tr>
 <tr>
 <td>objectKey</td><td>Object Key - The key (path) where the object will be stored in the S3 bucket. This will be the object's unique identifier.</td>
@@ -248,12 +275,6 @@ Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operatio
 <td>accessKey</td><td>AWS Access Key ID for S3 test operations</td>
 </tr>
 <tr>
-<td>finalMessage</td><td>Final test result message</td>
-</tr>
-<tr>
-<td>overallSuccess</td><td>Overall test success flag</td>
-</tr>
-<tr>
 <td>region</td><td>AWS Region for S3 test operations</td>
 </tr>
 <tr>
@@ -271,19 +292,6 @@ Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operatio
 <tr>
 <td>testObjectKey</td><td>Unique test object key with timestamp</td>
 </tr>
-<tr>
-<td>testResults</td><td>JSON object storing all test results with status for each operation test</td>
-</tr>
-<tr>
-<td>testsFailed</td><td>Count of failed tests</td>
-</tr>
-<tr>
-<td>testsPassed</td><td>Count of passed tests</td>
-</tr>
-<tr>
-<td>testTimestamp</td><td>Timestamp for test execution</td>
-</tr>
 </table>
-
 
 
