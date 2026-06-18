@@ -23,6 +23,96 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
           - ↑mode: JS
           - →→: '"Missing required variable(s): " + missingRequiredVariables.join(", ")'
   ↓Return [steps.ReturnStep-1781714254001]: 
+↓prepareObjectExistenceCheck [steps.SimpleStep-1781800364240]: 
+  comment: Prepare listObjects inputs to check the exact object key before deleting it.
+  expression: |
+    prefix = objectKey;
+    maxKeys = "1";
+↓checkObjectExists [steps.SequenceStep-1781800372166]: 
+  comment: Checks object existence before DELETE because S3 deleteObject is idempotent for missing keys.
+  sourceSequence: lib_s3.listObjects
+  ↓bucketName [variables.StepVariable-1781800372168]: 
+  ↓prefix [variables.StepVariable-1781800372170]: 
+  ↓maxKeys [variables.StepVariable-1781800372172]: 
+  ↓accessKey [variables.StepVariable-1781800372174]: 
+  ↓secretKey [variables.StepVariable-1781800372176]: 
+  ↓region [variables.StepVariable-1781800372178]: 
+  ↓sessionToken [variables.StepVariable-1781800372180]: 
+  ↓endpoint [variables.StepVariable-1781800372182]: 
+↓checkedObjectKey [steps.SimpleSourceStep-1781800382258]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781800372166
+        - java.lang.String: 
+          - ↑value: ./document/ListBucketResult/Contents/Key/text()
+  variableName: checkedObjectKey
+↓checkObjectS3ErrorCode [steps.SimpleSourceStep-1781800386726]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781800372166
+        - java.lang.String: 
+          - ↑value: ./document/error/message/text() | ./document/Error/Code/text()
+  variableName: checkObjectS3ErrorCode
+↓checkObjectS3ErrorDetails [steps.SimpleSourceStep-1781800393025]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1781800372166
+        - java.lang.String: 
+          - ↑value: ./document/error/details/text()
+  variableName: checkObjectS3ErrorDetails
+↓ifCheckObjectS3Error [steps.IfStep-1781800398957]: 
+  condition: String(checkObjectS3ErrorCode || checkObjectS3ErrorDetails || "") !== ""
+  ↓Error_structure [steps.XMLErrorStep-1781800398959]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: checkObjectS3ErrorDetails || checkObjectS3ErrorCode
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: checkObjectS3ErrorCode || "Unable to check object existence before delete"
+  ↓Return [steps.ReturnStep-1781800398965]: 
+↓ifObjectNotFound [steps.IfStep-1781800406070]: 
+  condition: String(checkedObjectKey || "") !== String(objectKey || "")
+  ↓Error_structure [steps.XMLErrorStep-1781800406072]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 404
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '"S3 Code: NoSuchKey - Key: " + String(objectKey || "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: The specified key does not exist.
+  ↓Return [steps.ReturnStep-1781800406074]: 
 ↓signS3Request [steps.SimpleStep-1781599617410]: 
   comment: Compute AWS Signature V4 headers for the S3 request.
   expression: |
