@@ -17,7 +17,7 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
       host: signingEndpoint,
       accessKey: accessKey,
       secretKey: secretKey,
-      region: "us-east-1",
+      region: region,
       sessionToken: sessionToken
     });
     __header_Authorization = s3SignedHeaders.authorization;
