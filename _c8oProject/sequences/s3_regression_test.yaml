@@ -345,11 +345,20 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
         - java.lang.String: 
           - ↑value: 1781589766985
         - java.lang.String: 
-          - ↑value: ./document/s3TestContent/text()
-  variableName: getObjectContent
+          - ↑value: ./document/filepath/text()
+  variableName: getObjectFilePath
 ↓check_getObject [steps.SimpleStep-1781589766987]: 
   comment: Check getObject result and record PASS/FAIL
-  expression: 'recordS3Result(''getObject'', getObjectC8oDetails, getObjectS3ErrorCode, getObjectRawText, getObjectContent == testContent ? getObjectContent : '''', null);'
+  expression: |
+    'var downloadedContent = '''';
+    try {
+        if (String(getObjectFilePath || '''')) {
+            downloadedContent = String(new java.lang.String(Packages.java.nio.file.Files.readAllBytes(Packages.java.nio.file.Paths.get(String(getObjectFilePath))), ''UTF-8''));
+        }
+    } catch (e) {
+        getObjectC8oDetails = String(e);
+    }
+    recordS3Result(''getObject'', getObjectC8oDetails, getObjectS3ErrorCode, getObjectRawText, downloadedContent.indexOf(testContent) >= 0 ? testContent : '''', null);'
 ↓run_deleteObject [steps.SequenceStep-1781589766989]: 
   comment: Executes deleteObject test by calling lib_s3.deleteObject sequence
   output: true

@@ -68,23 +68,23 @@ trustAllServerCertificates: false
   ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508549]: 
     cachedKey: false
     httpName: x-amz-security-token
-↓getObject [transactions.XmlHttpTransaction]: 
-  comment: HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path. Returns binary or text content of the requested object.
+↓getObject [transactions.DownloadHttpTransaction]: 
+  comment: HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path and stores the response in a downloaded file.
   subDir: '{bucketName}/{objectKey}'
-  ↓bucketName [variables.RequestableHttpVariable-1781613400005]: 
+  ↓bucketName [variables.RequestableHttpVariable-1781801424905]: 
     cachedKey: false
-  ↓objectKey [variables.RequestableHttpVariable-1781613400006]: 
+  ↓objectKey [variables.RequestableHttpVariable-1781801424907]: 
     cachedKey: false
-  ↓__header_Authorization [variables.RequestableHttpVariable-1781599508480]: 
+  ↓__header_Authorization [variables.RequestableHttpVariable-1781801424909]: 
     cachedKey: false
     httpName: Authorization
-  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781599508488]: 
+  ↓__header_x_amz_date [variables.RequestableHttpVariable-1781801424911]: 
     cachedKey: false
     httpName: x-amz-date
-  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781599508498]: 
+  ↓__header_x_amz_content_sha256 [variables.RequestableHttpVariable-1781801424913]: 
     cachedKey: false
     httpName: x-amz-content-sha256
-  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781599508506]: 
+  ↓__header_x_amz_security_token [variables.RequestableHttpVariable-1781801424915]: 
     cachedKey: false
     httpName: x-amz-security-token
 ↓listBuckets [transactions.XmlHttpTransaction]: 
