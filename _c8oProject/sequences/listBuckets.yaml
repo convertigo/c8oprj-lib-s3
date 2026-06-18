@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to list all S3 buckets accessible with configured AWS credentials. Calls listBuckets transaction with required authentication parameters.
 ↓signS3Request [steps.SimpleStep-1781599617329]: 
   comment: Compute AWS Signature V4 headers for the S3 request.
@@ -130,7 +131,7 @@ comment: Sequence to list all S3 buckets accessible with configured AWS credenti
           - →→: listBucketsS3ErrorMessage || listBucketsS3ErrorCode
   ↓Return [steps.ReturnStep-1781712405479]: 
 ↓copyResult [steps.XMLCopyStep-1781637152852]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

@@ -5,7 +5,6 @@ port: 443
 server: ${lib_s3.s3.endpoint}
 trustAllServerCertificates: false
 ↓createBucket [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to create a new S3 bucket. Uses PUT method with bucket name in path. Bucket will be created in the region specified by parameters.
   httpVerb: PUT
   subDir: '{bucketName}'
@@ -32,7 +31,6 @@ trustAllServerCertificates: false
     httpMethod: POST
     httpName: __contentType
 ↓deleteBucket [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to delete an S3 bucket. Uses DELETE method with bucket name in path. Bucket must be completely empty to be deleted.
   httpVerb: DELETE
   subDir: '{bucketName}'
@@ -51,7 +49,6 @@ trustAllServerCertificates: false
     cachedKey: false
     httpName: x-amz-security-token
 ↓deleteObject [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to delete an object from S3 bucket. Uses DELETE method with /bucket/object path. Object will be permanently deleted and cannot be recovered.
   httpVerb: DELETE
   subDir: '{bucketName}/{objectKey}'
@@ -72,7 +69,6 @@ trustAllServerCertificates: false
     cachedKey: false
     httpName: x-amz-security-token
 ↓getObject [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path. Returns binary or text content of the requested object.
   subDir: '{bucketName}/{objectKey}'
   ↓bucketName [variables.RequestableHttpVariable-1781613400005]: 
@@ -92,7 +88,6 @@ trustAllServerCertificates: false
     cachedKey: false
     httpName: x-amz-security-token
 ↓listBuckets [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to list all S3 buckets accessible with configured AWS credentials. Uses GET method on S3 API root. Returns complete list of available buckets for the AWS account.
   subDir: /
   ↓__header_Authorization [variables.RequestableHttpVariable-1781599463767]: 
@@ -108,7 +103,6 @@ trustAllServerCertificates: false
     cachedKey: false
     httpName: x-amz-security-token
 ↓listObjects [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to list objects in a specific S3 bucket. Uses ListObjectsV2 API with list-type=2 parameter. Allows filtering with prefix and delimiter, and limits results with max-keys.
   subDir: '{bucketName}?list-type=2'
   ↓bucketName [variables.RequestableHttpVariable-1781613400007]: 
@@ -132,7 +126,6 @@ trustAllServerCertificates: false
   ↓maxKeys [variables.RequestableHttpVariable-1781599508464]: 
     httpName: max-keys
 ↓putObject [transactions.XmlHttpTransaction]: 
-  accessibility: Public
   comment: HTTP Transaction to upload an object to S3 bucket. Uses PUT method with /bucket/object path. Content to upload must be provided in request body with appropriate Content-Type.
   httpVerb: PUT
   subDir: '{bucketName}/{objectKey}'

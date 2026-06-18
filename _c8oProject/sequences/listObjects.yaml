@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to list objects in a specific S3 bucket. Calls listObjects transaction with optional filtering parameters (prefix, delimiter, maxKeys).
 ↓validateRequiredVariables [steps.IfStep-1781714234609]: 
   comment: Fail fast when required input variables are missing.
@@ -180,7 +181,7 @@ comment: Sequence to list objects in a specific S3 bucket. Calls listObjects tra
           - →→: listObjectsS3ErrorMessage || listObjectsS3ErrorCode
   ↓Return [steps.ReturnStep-1781712405522]: 
 ↓copyResult [steps.XMLCopyStep-1781678904948]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

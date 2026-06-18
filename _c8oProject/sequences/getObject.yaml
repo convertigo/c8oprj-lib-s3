@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to download an object from S3 bucket. Calls getObject transaction with bucket name and object key to retrieve.
 ↓validateRequiredVariables [steps.IfStep-1781714242034]: 
   comment: Fail fast when required input variables are missing.
@@ -166,7 +167,7 @@ comment: Sequence to download an object from S3 bucket. Calls getObject transact
           - →→: getObjectS3ErrorMessage || getObjectS3ErrorCode
   ↓Return [steps.ReturnStep-1781712405578]: 
 ↓copyResult [steps.XMLCopyStep-1781678926657]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

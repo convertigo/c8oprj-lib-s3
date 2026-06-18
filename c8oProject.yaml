@@ -16,7 +16,7 @@
     | Delete a bucket | deleteBucket | Deletes an empty S3 bucket. |
     | Run regression checks | s3_regression_test | Executes the create/upload/list/get/delete cleanup flow to validate the configured project. |
     
-    Usage: configure these project symbols before calling the public sequences:
+    Usage: configure these project symbols before calling the library sequences:
     
     | Symbol | Required | Default | Description |
     | --- | --- | --- | --- |
@@ -34,7 +34,7 @@
   contextTimeout: 59
   corsOrigin: =Origin
   httpSessionTimeout: 60
-  version: 1.0.4
+  version: 1.0.5
   ↓AmazonS3 [connectors.HttpConnector]: 🗏 connectors/AmazonS3.yaml
   ↓createBucket [sequences.GenericSequence]: 🗏 sequences/createBucket.yaml
   ↓deleteBucket [sequences.GenericSequence]: 🗏 sequences/deleteBucket.yaml

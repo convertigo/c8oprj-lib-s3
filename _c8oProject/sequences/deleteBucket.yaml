@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bucket name to delete. Bucket must be empty to be successfully deleted.
 ↓validateRequiredVariables [steps.IfStep-1781714259139]: 
   comment: Fail fast when required input variables are missing.
@@ -187,7 +188,7 @@ comment: Sequence to delete an S3 bucket. Calls deleteBucket transaction with bu
     var deleteBucketDetails = String(deleteBucketC8oDetails || "");
     deleteBucketEmptyResponse = deleteBucketMessage.indexOf("Unable to parse the XML document") >= 0 || deleteBucketMessage.indexOf("unexpected exception") >= 0 || deleteBucketDetails.indexOf("Premature end of file") >= 0;
 ↓copyResult [steps.XMLCopyStep-1781678968438]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

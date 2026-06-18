@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to create a new S3 bucket. Calls createBucket transaction with bucket name and optional region parameter.
 ↓validateRequiredVariables [steps.IfStep-1781714228353]: 
   comment: Fail fast when required input variables are missing.
@@ -223,7 +224,7 @@ comment: Sequence to create a new S3 bucket. Calls createBucket transaction with
     var createBucketDetails = String(createBucketC8oDetails || "");
     createBucketEmptyResponse = createBucketMessage.indexOf("Unable to parse the XML document") >= 0 || createBucketDetails.indexOf("Premature end of file") >= 0;
 ↓copyResult [steps.XMLCopyStep-1781678863674]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

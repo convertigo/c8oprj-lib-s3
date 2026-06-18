@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Sequence to upload an object to S3 bucket. Calls putObject transaction with bucket name, object key, MIME type and content to upload.
 ↓validateRequiredVariables [steps.IfStep-1781714248085]: 
   comment: Fail fast when required input variables are missing.
@@ -221,7 +222,7 @@ comment: Sequence to upload an object to S3 bucket. Calls putObject transaction 
     var putObjectDetails = String(putObjectC8oDetails || "");
     putObjectEmptyResponse = putObjectMessage.indexOf("Unable to parse the XML document") >= 0 || putObjectMessage.indexOf("unexpected exception") >= 0 || putObjectDetails.indexOf("Premature end of file") >= 0;
 ↓copyResult [steps.XMLCopyStep-1781678883427]: 
-  comment: Copies the S3 XML response as the public sequence result.
+  comment: Copies the S3 XML response as the sequence result.
   sourceDefinition: 
     - xmlizable: 
       - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector

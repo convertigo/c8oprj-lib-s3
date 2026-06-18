@@ -1,3 +1,4 @@
+accessibility: Private
 comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3 operations with proper error handling using TryCatch.
 ↓init_test [steps.SimpleStep-1781589696641]: 
   comment: Initialize test results tracking and generate unique names
