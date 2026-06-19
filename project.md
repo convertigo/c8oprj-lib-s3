@@ -16,7 +16,7 @@ What this library can do:
 | Delete a bucket | deleteBucket | Deletes an empty S3 bucket. |
 | Run regression checks | s3_regression_test | Executes the create/upload/list/get/delete cleanup flow to validate the configured project. |
 
-Usage: configure these project symbols before calling the public sequences:
+Usage: configure these project symbols before calling the library sequences:
 
 | Symbol | Required | Default | Description |
 | --- | --- | --- | --- |
@@ -255,9 +255,9 @@ comment
 <details><summary><b>getObject</b> : HTTP Transaction to download an object from S3 bucket</summary><blockquote><p>
 
 
-### ![](https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/transactions/images/xmlhttptransaction_color_16x16.png?raw=true "XmlHttpTransaction") getObject
+### ![](https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/transactions/images/downloadhttptransaction_color_16x16.png?raw=true "DownloadHttpTransaction") getObject
 
-HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path. Returns binary or text content of the requested object.
+HTTP Transaction to download an object from S3 bucket. Uses GET method with /bucket/object path and stores the response in a downloaded file.
 
 <span style="color:DarkGoldenRod">Variables</span>
 
@@ -811,6 +811,14 @@ AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Rep
 </td>
 <td>
 S3 Bucket Name - Name of the bucket containing the object to download. Must be a valid existing bucket name.
+</td>
+</tr>
+<tr>
+<td>
+<img src="https://github.com/convertigo/convertigo/blob/develop/engine/src/com/twinsoft/convertigo/beans/variables/images/variable_color_16x16.png?raw=true "  alt="RequestableVariable" >&nbsp;downloadFolder
+</td>
+<td>
+Download destination folder. This path is either absolute or relative to Convertigo environment. If not specified, the file is downloaded to the _data/download directory of lib_s3
 </td>
 </tr>
 <tr>
