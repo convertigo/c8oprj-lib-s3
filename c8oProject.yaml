@@ -39,8 +39,11 @@
   ↓createBucket [sequences.GenericSequence]: 🗏 sequences/createBucket.yaml
   ↓deleteBucket [sequences.GenericSequence]: 🗏 sequences/deleteBucket.yaml
   ↓deleteObject [sequences.GenericSequence]: 🗏 sequences/deleteObject.yaml
+  ↓deleteTags [sequences.GenericSequence]: 🗏 sequences/deleteTags.yaml
   ↓getObject [sequences.GenericSequence]: 🗏 sequences/getObject.yaml
+  ↓getTags [sequences.GenericSequence]: 🗏 sequences/getTags.yaml
   ↓listBuckets [sequences.GenericSequence]: 🗏 sequences/listBuckets.yaml
   ↓listObjects [sequences.GenericSequence]: 🗏 sequences/listObjects.yaml
   ↓putObject [sequences.GenericSequence]: 🗏 sequences/putObject.yaml
+  ↓putTags [sequences.GenericSequence]: 🗏 sequences/putTags.yaml
   ↓s3_regression_test [sequences.GenericSequence]: 🗏 sequences/s3_regression_test.yaml

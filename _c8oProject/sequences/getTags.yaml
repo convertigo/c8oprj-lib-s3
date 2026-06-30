@@ -1,0 +1,232 @@
+accessibility: Private
+comment: Sequence to get tags for a an object in a specific S3 bucket.
+↓validateRequiredVariables [steps.IfStep-1782805408114]: 
+  comment: Fail fast when required input variables are missing.
+  condition: (function(){ missingRequiredVariables = []; if (!String(bucketName || "").trim()) missingRequiredVariables.push("bucketName"); if (!String(objectKey || "").trim()) missingRequiredVariables.push("objectKey"); return missingRequiredVariables.length > 0; })()
+  ↓Error_structure [steps.XMLErrorStep-1782805408117]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 'Required variable(s) for listObjects: bucketName'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '"Missing required variable(s): " + missingRequiredVariables.join(", ")'
+  ↓Return [steps.ReturnStep-1782805408120]: 
+↓signS3Request [steps.SimpleStep-1782805408123]: 
+  comment: Compute AWS Signature V4 headers for the S3 request.
+  expression: |
+    'include("js/s3_sigv4.js");
+    var signingEndpoint = C8O.s3SigV4.resolveHost(endpoint, "s3.amazonaws.com");
+    var signingRegion = String(region || "").trim();
+    if (!signingRegion.match(/^[a-z]{2}-[a-z]+-[0-9]+$/)) {
+      signingRegion = "us-east-1";
+    }
+    region = signingRegion;
+    var requestQuery = {
+      "tagging": ""
+    };
+    requestUrl = C8O.s3SigV4.url({
+      host: signingEndpoint,
+      path: "/" + String(bucketName || "") + "/" + String(objectKey || ""),
+      query: requestQuery
+    });
+    var s3SignedHeaders = C8O.s3SigV4.sign({
+      method: "GET",
+      path: "/" + String(bucketName || "") + "/" + String(objectKey || ""),
+      query: requestQuery,
+      host: signingEndpoint,
+      accessKey: accessKey,
+      secretKey: secretKey,
+      region: signingRegion,
+      sessionToken: sessionToken
+    });
+    __header_Authorization = s3SignedHeaders.authorization;
+    __header_x_amz_date = s3SignedHeaders.amzDate;
+    __header_x_amz_content_sha256 = s3SignedHeaders.contentSha256;
+    __header_x_amz_security_token = s3SignedHeaders.securityToken || null;'
+↓signedAuthorization [steps.ElementStep-1782805408126]: 
+  expression: __header_Authorization
+  nodeName: signedAuthorization
+  output: false
+↓signedAmzDate [steps.ElementStep-1782805408129]: 
+  expression: __header_x_amz_date
+  nodeName: signedAmzDate
+  output: false
+↓signedContentSha256 [steps.ElementStep-1782805408132]: 
+  expression: __header_x_amz_content_sha256
+  nodeName: signedContentSha256
+  output: false
+↓requestUrl [steps.ElementStep-1782805408147]: 
+  expression: requestUrl
+  nodeName: requestUrl
+  output: false
+↓callListObjects [steps.TransactionStep-1782805408150]: 
+  comment: Transaction Step - Calls the listObjects HTTP transaction with configured AWS authentication parameters.
+  connectionStringDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1782805408147
+        - java.lang.String: 
+          - ↑value: ./text()
+  sourceTransaction: lib_s3.AmazonS3.getTags
+  ↓__header_Authorization [variables.StepVariable-1782805408153]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1782805408126
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_date [variables.StepVariable-1782805408156]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1782805408129
+          - java.lang.String: 
+            - ↑value: ./text()
+  ↓__header_x_amz_content_sha256 [variables.StepVariable-1782805408159]: 
+    sourceDefinition: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+        - com.twinsoft.convertigo.beans.common.XMLVector: 
+          - java.lang.String: 
+            - ↑value: 1782805408132
+          - java.lang.String: 
+            - ↑value: ./text()
+↓listObjectsS3ErrorCode [steps.SimpleSourceStep-1782805408162]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1782805408150
+        - java.lang.String: 
+          - ↑value: ./document/Error/Code/text()
+  variableName: listObjectsS3ErrorCode
+↓listObjectsS3ErrorMessage [steps.SimpleSourceStep-1782805408165]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1782805408150
+        - java.lang.String: 
+          - ↑value: ./document/Error/Message/text()
+  variableName: listObjectsS3ErrorMessage
+↓listObjectsS3RequestId [steps.SimpleSourceStep-1782805408168]: 
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1782805408150
+        - java.lang.String: 
+          - ↑value: ./document/Error/RequestId/text()
+  variableName: listObjectsS3RequestId
+↓ifListObjectsS3Error [steps.IfStep-1782805408171]: 
+  condition: String(listObjectsS3ErrorCode || "") !== ""
+  ↓success [steps.JsonFieldStep-1782813598127]: 
+    key: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: success
+    type: bool
+    value: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: false
+  ↓Error_structure [steps.XMLErrorStep-1782805408174]: 
+    code: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: PLAIN
+          - →→: 400
+    details: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: '(listObjectsS3ErrorCode ? "S3 Code: " + listObjectsS3ErrorCode : "") + (listObjectsS3RequestId ? " - RequestId: " + listObjectsS3RequestId : "")'
+    message: 
+      - xmlizable: 
+        - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+        - SmartType: 
+          - ↑mode: JS
+          - →→: listObjectsS3ErrorMessage || listObjectsS3ErrorCode
+  ↓Return [steps.ReturnStep-1782805408177]: 
+↓copyResult [steps.XMLCopyStep-1782805408180]: 
+  comment: Copies the S3 XML response as the sequence result.
+  sourceDefinition: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.common.XMLVector
+      - com.twinsoft.convertigo.beans.common.XMLVector: 
+        - java.lang.String: 
+          - ↑value: 1782805408150
+        - java.lang.String: 
+          - ↑value: ./document/*
+↓success [steps.JsonFieldStep-1782813595106]: 
+  key: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+      - SmartType: 
+        - ↑mode: PLAIN
+        - →→: success
+  type: bool
+  value: 
+    - xmlizable: 
+      - ↑classname: com.twinsoft.convertigo.beans.steps.SmartType
+      - SmartType: 
+        - ↑mode: PLAIN
+        - →→: true
+↓accessKey [variables.RequestableVariable-1782805408183]: 
+  comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
+  value: ${lib_s3.s3.accessKey}
+↓secretKey [variables.RequestableVariable-1782805408186]: 
+  comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: xce0f7e9cf22cd0300290791f369ebb6fabe2a6b3d475c13667be845771c64b0a
+  visibility: '-1'
+↓region [variables.RequestableVariable-1782805408189]: 
+  comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
+  value: ${lib_s3.s3.region}
+↓sessionToken [variables.RequestableVariable-1782805408192]: 
+  comment: AWS Session Token - Temporary security token for AWS STS credentials. Optional for standard AWS credentials, required for temporary security credentials.
+  value: ${lib_s3.s3.sessionToken.secret}
+↓bucketName [variables.RequestableVariable-1782805408195]: 
+  comment: S3 Bucket Name - Name of the bucket to list objects from. Must be a valid existing bucket name.
+  required: true
+↓prefix [variables.RequestableVariable-1782805408198]: 
+  comment: Prefix - Filter to list only objects whose keys begin with this prefix. Optional parameter.
+↓delimiter [variables.RequestableVariable-1782805408201]: 
+  comment: Delimiter - Character used to group keys that share a common prefix. Optional parameter for hierarchical listing.
+↓maxKeys [variables.RequestableVariable-1782805408204]: 
+  comment: Max Keys - Maximum number of object keys to return in response. Default is 1000, maximum is 1000.
+  value: 1000
+↓endpoint [variables.RequestableVariable-1782805408207]: 
+  comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
+  value: ${lib_s3.s3.endpoint}
+↓objectKey [variables.RequestableVariable-1782805962686]: 
+  required: true
