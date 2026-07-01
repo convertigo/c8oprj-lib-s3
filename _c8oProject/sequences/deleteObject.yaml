@@ -154,14 +154,6 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
   expression: __header_x_amz_content_sha256
   nodeName: signedContentSha256
   output: false
-↓requestBucketName [steps.ElementStep-1781613340004]: 
-  expression: bucketName
-  nodeName: requestBucketName
-  output: false
-↓requestObjectKey [steps.ElementStep-1781613340005]: 
-  expression: objectKey
-  nodeName: requestObjectKey
-  output: false
 ↓requestUrl [steps.ElementStep-1781711194781]: 
   expression: requestUrl
   nodeName: requestUrl
@@ -309,10 +301,18 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
       nodeName: Status
 ↓accessKey [variables.RequestableVariable-1781586744214]: 
   comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
-  value: ${lib_s3.s3.accessKey}
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: x892e97fb62ce3df607ab7428df006fcb08293c5a68d466996a19e94d95944ffe
+  visibility: '-1'
 ↓secretKey [variables.RequestableVariable-1781586744216]: 
   comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
-  value: ${lib_s3.s3.secretKey.secret}
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: xce0f7e9cf22cd0300290791f369ebb6fabe2a6b3d475c13667be845771c64b0a
+  visibility: '-1'
 ↓region [variables.RequestableVariable-1781586744218]: 
   comment: AWS Region - Geographic region for S3 service (e.g., us-east-1, eu-west-1, ap-southeast-1). Default is us-east-1.
   value: ${lib_s3.s3.region}
@@ -321,8 +321,10 @@ comment: Sequence to delete an object from S3 bucket. Calls deleteObject transac
   value: ${lib_s3.s3.sessionToken.secret}
 ↓bucketName [variables.RequestableVariable-1781586744222]: 
   comment: S3 Bucket Name - Name of the bucket containing the object to delete. Must be a valid existing bucket name.
+  required: true
 ↓objectKey [variables.RequestableVariable-1781586744224]: 
   comment: Object Key - The key (path) of the object to delete from the S3 bucket. Must be a valid existing object key.
+  required: true
 ↓endpoint [variables.RequestableVariable-1781709534426]: 
   comment: S3 API endpoint host. Defaults to s3.amazonaws.com for Amazon S3; configure lib_s3.s3.endpoint for S3-compatible services.
   value: ${lib_s3.s3.endpoint}

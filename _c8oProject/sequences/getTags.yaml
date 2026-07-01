@@ -201,7 +201,11 @@ comment: Sequence to get tags for a an object in a specific S3 bucket.
         - →→: true
 ↓accessKey [variables.RequestableVariable-1782805408183]: 
   comment: AWS Access Key ID - Unique identifier to authenticate requests to Amazon S3. Replace with your actual AWS Access Key ID.
-  value: ${lib_s3.s3.accessKey}
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: x892e97fb62ce3df607ab7428df006fcb08293c5a68d466996a19e94d95944ffe
+  visibility: '-1'
 ↓secretKey [variables.RequestableVariable-1782805408186]: 
   comment: AWS Secret Access Key - Secret key used in conjunction with Access Key ID to sign requests. Replace with your actual AWS Secret Access Key.
   value: 

@@ -501,10 +501,18 @@ comment: Non-regression test sequence for lib_s3 S3 connector. Executes all 7 S3
   schemaDataType: xsd:boolean
 ↓accessKey [variables.RequestableVariable-1781589657147]: 
   comment: AWS Access Key ID for S3 test operations
-  value: ${lib_s3.s3.accessKey}
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: x892e97fb62ce3df607ab7428df006fcb08293c5a68d466996a19e94d95944ffe
+  visibility: '-1'
 ↓secretKey [variables.RequestableVariable-1781589657149]: 
   comment: AWS Secret Access Key for S3 test operations
-  value: ${lib_s3.s3.secretKey.secret}
+  value: 
+    - ↑ciphered: true
+    - ↑traceable: false
+    - →→: xce0f7e9cf22cd0300290791f369ebb6fabe2a6b3d475c13667be845771c64b0a
+  visibility: '-1'
 ↓region [variables.RequestableVariable-1781589657151]: 
   comment: AWS Region for S3 test operations
   value: ${lib_s3.s3.region}
