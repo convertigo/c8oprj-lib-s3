@@ -34,7 +34,7 @@
   contextTimeout: 59
   corsOrigin: =Origin
   httpSessionTimeout: 60
-  version: 1.0.6
+  version: 1.0.7
   ↓AmazonS3 [connectors.HttpConnector]: 🗏 connectors/AmazonS3.yaml
   ↓createBucket [sequences.GenericSequence]: 🗏 sequences/createBucket.yaml
   ↓deleteBucket [sequences.GenericSequence]: 🗏 sequences/deleteBucket.yaml
